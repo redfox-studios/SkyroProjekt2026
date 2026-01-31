@@ -36,9 +36,9 @@ POVINNE conventional commits<br />
 https://www.conventionalcommits.org/
 
 priklady:
-- feat player movement
-- fix collision bug
-- refactor inventory system
+- feat: player movement
+- fix: collision bug
+- refactor: inventory system
 
 ak tu uvidim commity typu
 - fix
