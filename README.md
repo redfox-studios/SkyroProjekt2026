@@ -1,6 +1,6 @@
 # SkyroProjekt2026
 
-toto je skolsky projekt. hra. ciel je jednoduchy  
+toto je skolsky projekt. hra. ciel je jednoduchy<br />
 nech to funguje a nech tu neni bordel
 
 nezaujima ma kto je v teame ani co skyro povie. pravidla platia pre kazdeho
@@ -29,6 +29,68 @@ drz sa jej
 ak mas napad alebo problem<br />
 napis do groupchatu a opytaj sa<br />
 neser sa do veci ktore nie su tvoje
+
+## unreal engine naming
+
+v unreali sa veci MENUJU TAK AKO SA MAJU<br />
+ak to nebude pomenovane spravne tak ti to vratim nech to prerobis
+
+priklady:
+- T_MojaTextura
+- M_MojMaterial
+- MI_MojMaterialInstance
+- SM_MojMesh
+- BP_MojBlueprint
+- BPI_MojInterface
+- AN_MojaAnimacia
+
+zvysok rovnaka logika -> ziadne random nazvy, ziadne defaultne veci
+
+## 3d modely a assety
+
+je mi jedno v com robis blender maya hocico<br />
+export musi byt cisty a bez kktin
+
+- spravna mierka
+- spravny pivot
+- ziadne rozbite normals
+- ziadne random transformy
+
+ak je objekt z viac casti, kazda cast ma svoj nazov
+
+priklad:
+kaktus vo vaze:
+- SM_Cactus
+  - SM_Vase
+  - SM_Podjebnik
+
+ziadne:
+- Cube001
+  - Object_final_final_v3
+  - mesh123
+
+## textury a materialy
+
+ak sa da, pouzivame IBA:
+- jednu texturu
+- jeden material
+
+imphenzia pixpal<br />
+bude uz v projekte
+
+nepridavaj nove textury a materialy bez dovodu<br />
+ak nevies, pytaj sa
+
+## rig a animacie
+
+menovanie plati AJ PRE RIG
+
+- ziadne Bone001
+- ziadne mix slov a cisel bez logiky
+
+kosti maju mat normalne citatelne nazvy<br />
+ano je to time consuming<br />
+radsej toto nez potom po vas upratovat bordel
 
 ## commity
 
