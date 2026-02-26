@@ -6,17 +6,17 @@ Example: `feat(auth): add Google login`
 
 ## Types & When to Use
 
-| Type | When |
-|------|------|
-| `feat` | New feature |
-| `fix` | Bug fix |
+| Type       | When                                                                |
+|------------|---------------------------------------------------------------------|
+| `feat`     | New feature                                                         |
+| `fix`      | Bug fix                                                             |
 | `refactor` | Code change that's neither a fix nor feature (cleanup, restructure) |
-| `style` | Formatting only — no logic change (spaces, semicolons, etc.) |
-| `chore` | Boring maintenance — updating deps, config, build scripts |
-| `docs` | Documentation only |
-| `test` | Adding or fixing tests |
-| `perf` | Performance improvement |
-| `revert` | Reverting a previous commit |
+| `style`    | Formatting only — no logic change (spaces, semicolons, etc.)        |
+| `chore`    | Boring maintenance — updating deps, config, build scripts           |
+| `docs`     | Documentation only                                                  |
+| `test`     | Adding or fixing tests                                              |
+| `perf`     | Performance improvement                                             |
+| `revert`   | Reverting a previous commit                                         |
 
 ## Rules
 
