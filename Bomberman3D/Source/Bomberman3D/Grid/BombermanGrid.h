@@ -6,6 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "BombermanGrid.generated.h"
 
+UENUM(BlueprintType)
+enum class ETileContent : uint8
+{
+	Empty       UMETA(DisplayName = "Empty"),
+	SoftBlock   UMETA(DisplayName = "Soft Block"),
+	HardBlock   UMETA(DisplayName = "Hard Block"),
+	Bomb        UMETA(DisplayName = "Bomb"),
+	Upgrade     UMETA(DisplayName = "Upgrade"),
+	Door        UMETA(DisplayName = "Door")
+};
+
 UCLASS()
 class BOMBERMAN3D_API ABombermanGrid : public AActor
 {
@@ -19,7 +30,28 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	int32 BaseGridWidth = 13;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	int32 BaseGridHeight = 11;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	int32 GridGrowthPerStages = 10; // every X stages, grid grows by 1 in each direction
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	int32 MaxGridWidth = 21;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	int32 MaxGridHeight = 17;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	float TileSize = 100.f;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	TArray<TArray<ETileContent>> Data;
 };

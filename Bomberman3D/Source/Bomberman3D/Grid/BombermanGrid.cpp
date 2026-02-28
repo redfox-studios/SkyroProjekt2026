@@ -7,7 +7,7 @@
 ABombermanGrid::ABombermanGrid()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -15,7 +15,21 @@ ABombermanGrid::ABombermanGrid()
 void ABombermanGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Data.Reserve(BaseGridHeight);
+
+	for (int32 i = 0; i < BaseGridHeight; i++)
+	{
+		TArray<ETileContent> Row;
+		Row.Reserve(BaseGridWidth);
+
+		for (int32 j = 0; j < BaseGridWidth; j++)
+		{
+			Row.Add(ETileContent::Empty);
+		}
+
+		Data.Add(Row);
+	}
 }
 
 // Called every frame
