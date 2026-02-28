@@ -6,7 +6,7 @@
 // Sets default values
 ABombermanGrid::ABombermanGrid()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 }
@@ -39,3 +39,70 @@ void ABombermanGrid::Tick(float DeltaTime)
 
 }
 
+bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const {
+
+	bool bIsWalkable;
+
+	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
+		X < 0 || Y < 0
+		)
+	{
+		return false;
+	}
+	else {
+		if (
+			Data[X][Y] == ETileContent::SoftBlock ||
+			Data[X][Y] == ETileContent::HardBlock ||
+			Data[X][Y] == ETileContent::Bomb
+			)
+		{
+			bIsWalkable = false;
+		}
+		else {
+			bIsWalkable = true;
+		}
+
+		/*
+		// can also be simplified to:
+		return !(Data[X][Y] == ETileContent::SoftBlock ||
+				 Data[X][Y] == ETileContent::HardBlock ||
+				 Data[X][Y] == ETileContent::Bomb);
+		*/
+	}
+
+	return bIsWalkable;
+}
+
+FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const {
+
+	FVector Result = GetActorLocation();
+
+	Result += { X * TileSize, Y * TileSize, 0.f };
+
+	return Result;
+}
+
+ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const {
+
+	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
+		X < 0 || Y < 0
+		)
+	{
+		return ETileContent::Empty;
+	}
+	else {
+		return Data[X][Y];
+	}
+}
+
+void ABombermanGrid::SetTileContent(int32 X, int32 Y, ETileContent WhatToSet) const {
+	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
+		X < 0 || Y < 0
+		)
+	{
+		return;
+	}
+	else {
+		Data[X][Y] = WhatToSet; // FINISH THIS
+	}
+}

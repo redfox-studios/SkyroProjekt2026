@@ -52,6 +52,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	bool IsTileWalkable(int32 X, int32 Y) const;
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTileWorldPosition(int32 X, int32 Y) const;
+
+	UFUNCTION(BlueprintCallable)
+	ETileContent GetTileContent(int32 X, int32 Y) const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetTileContent(int32 X, int32 Y, ETileContent) const;
+
 private:
 	TArray<TArray<ETileContent>> Data;
 };
