@@ -12,6 +12,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 
+#include "Bomb/BombermanBomb.h"
+
 #include "BombermanCharacter.generated.h"
 
 class ABombermanGrid;
@@ -56,6 +58,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	UCameraComponent* Camera;
+
+	// --- bomb ---
+	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
+	TSubclassOf<ABombermanBomb> BombClass;
 
 	// --- misc ---
 

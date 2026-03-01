@@ -5,6 +5,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "Grid/BombermanGrid.h"
 
 #include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement()
@@ -36,6 +38,7 @@ void ABombermanCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass())); // moved from BP
 }
 
 // Called every frame
@@ -57,16 +60,7 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	}
 }
 
-void ABombermanCharacter::Move(const FInputActionValue& Value)
-{
-	FVector2D Input = Value.Get<FVector2D>();
-	AddMovementInput(FVector::ForwardVector, Input.Y);
-	AddMovementInput(FVector::RightVector, Input.X);
-}
-
-void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value) {
-	UE_LOG(LogTemp, Warning, TEXT("Bomb Placed"));
-}
+// --- custom funcs ---
 
 FVector2D ABombermanCharacter::GetCurrentGridPosition() const
 {
@@ -79,4 +73,24 @@ FVector2D ABombermanCharacter::GetCurrentGridPosition() const
 	}
 
 	return FVector2D::ZeroVector; // in case the compiler will talk shit
+}
+
+void ABombermanCharacter::Move(const FInputActionValue& Value)
+{
+	FVector2D Input = Value.Get<FVector2D>();
+	AddMovementInput(FVector::ForwardVector, Input.Y);
+	AddMovementInput(FVector::RightVector, Input.X);
+}
+
+void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
+{
+	if (Grid && BombClass) // meow meow null check
+	{
+		FVector2D GridPosition = GetCurrentGridPosition();
+		FVector WorldPosition = Grid->GetTileWorldPosition(GridPosition.X, GridPosition.Y);
+
+		GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPosition, GetActorRotation());
+
+		UE_LOG(LogTemp, Warning, TEXT("Bomb Placed"));
+	}
 }
