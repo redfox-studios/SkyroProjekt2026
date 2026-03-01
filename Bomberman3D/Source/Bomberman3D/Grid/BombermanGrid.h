@@ -69,6 +69,10 @@ public:
 
 public:
 	float GetTileSize() const { return TileSize; }
+	FVector2D GetCurrentGridPosition() const;
+
+	UFUNCTION(BlueprintCallable)
+	FVector2D GetGridPositionFromWorld(FVector WorldLocation) const;
 
 private:
 	TArray<TArray<ETileContent>> Data;

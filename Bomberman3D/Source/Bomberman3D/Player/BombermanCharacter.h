@@ -68,5 +68,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	ABombermanGrid* Grid;
 
+	UFUNCTION()
 	FVector2D GetCurrentGridPosition() const;
 };
