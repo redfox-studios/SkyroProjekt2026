@@ -123,3 +123,12 @@ bool ABombermanGrid::IsTileSoft(int32 X, int32 Y) const {
 		}
 	}
 }
+
+FVector2D ABombermanGrid::GetGridPositionFromWorld(FVector WorldLocation) const
+{
+	FVector LocalPos = WorldLocation - GetActorLocation();
+	return FVector2D(
+		FMath::RoundToInt(LocalPos.X / TileSize),
+		FMath::RoundToInt(LocalPos.Y / TileSize)
+	);
+}

@@ -62,19 +62,6 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 // --- custom funcs ---
 
-FVector2D ABombermanCharacter::GetCurrentGridPosition() const
-{
-	if (Grid) // meow meow null check
-	{
-		return FVector2D(
-			FMath::RoundToInt(GetActorLocation().X / Grid->GetTileSize()),
-			FMath::RoundToInt(GetActorLocation().Y / Grid->GetTileSize())
-		);
-	}
-
-	return FVector2D::ZeroVector; // in case the compiler will talk shit
-}
-
 void ABombermanCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D Input = Value.Get<FVector2D>();
@@ -93,4 +80,12 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 
 		UE_LOG(LogTemp, Warning, TEXT("Bomb Placed"));
 	}
+}
+
+FVector2D ABombermanCharacter::GetCurrentGridPosition() const
+{
+	if (Grid)
+		return Grid->GetGridPositionFromWorld(GetActorLocation());
+
+	return FVector2D::ZeroVector;
 }
