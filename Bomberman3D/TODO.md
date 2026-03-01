@@ -18,9 +18,9 @@ AI enhanced TODO
 - [ ] Debug visualization (draw tiles in editor so you can see the grid)
 
 ### Player
-- [ ] BombermanCharacter class (inherits ACharacter)
-- [ ] Top-down movement (4-directional, smooth)
-- [ ] Fixed camera setup (spring arm, locked rotation, -65 degrees)
+- [x] BombermanCharacter class (inherits ACharacter)
+- [x] Top-down movement (4-directional, smooth)
+- [x] Fixed camera setup (spring arm, locked rotation, -65 degrees)
 - [ ] Bomb placement input
 - [ ] GetCurrentGridPosition() (world pos -> grid coords)
 - [ ] BombermanPlayerState (lives, score, upgrades struct, bomb count, blast radius)
