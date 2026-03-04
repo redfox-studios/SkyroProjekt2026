@@ -39,13 +39,17 @@ void ABombermanGrid::Tick(float DeltaTime)
 
 }
 
+// credits to: https://github.com/kubgus
+bool ABombermanGrid::IsInBounds(int32 X, int32 Y) const {
+	return X >= 0 && X < BaseGridHeight && Y >= 0 && Y < BaseGridWidth;
+}
+// end credits
+
 bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const {
 
 	bool bIsWalkable;
 
-	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
-		X < 0 || Y < 0
-		)
+	if (!IsInBounds(X, Y))
 	{
 		return false;
 	}
@@ -84,9 +88,7 @@ FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const {
 
 ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const {
 
-	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
-		X < 0 || Y < 0
-		)
+	if (!IsInBounds(X, Y))
 	{
 		return ETileContent::Empty;
 	}
@@ -96,9 +98,7 @@ ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const {
 }
 
 void ABombermanGrid::SetTileContent(int32 X, int32 Y, ETileContent NewContent) {
-	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
-		X < 0 || Y < 0
-		)
+	if (!IsInBounds(X, Y))
 	{
 		return;
 	}
@@ -108,9 +108,7 @@ void ABombermanGrid::SetTileContent(int32 X, int32 Y, ETileContent NewContent) {
 }
 
 bool ABombermanGrid::IsTileSoft(int32 X, int32 Y) const {
-	if (X >= BaseGridWidth || Y >= BaseGridHeight ||
-		X < 0 || Y < 0
-		)
+	if (!IsInBounds(X, Y))
 	{
 		return false;
 	}
