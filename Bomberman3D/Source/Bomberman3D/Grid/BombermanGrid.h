@@ -93,6 +93,9 @@ public:
 
 	float GetTileSize() const { return TileSize; }
 
+	UPROPERTY(EditAnywhere, Category = "Grid Debug")
+	bool bDrawDebug = false;
+
 private:
 	void InitGrid();
 	void PlaceHardWalls();

@@ -5,7 +5,7 @@
 
 ABombermanGrid::ABombermanGrid()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true; // only needed for debug
 }
 
 void ABombermanGrid::BeginPlay()
@@ -19,6 +19,20 @@ void ABombermanGrid::BeginPlay()
 void ABombermanGrid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bDrawDebug)
+	{
+		for (int32 X = 0; X < BaseGridHeight; X++)
+			for (int32 Y = 0; Y < BaseGridWidth; Y++)
+			{
+				FVector Center = GetTileWorldPosition(X, Y) + FVector(0, 0, 50.f);
+				FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
+					Data[X][Y] == ETileContent::SoftBlock ? FColor::Orange :
+					Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
+					FColor::Green;
+				DrawDebugBox(GetWorld(), Center, FVector(TileSize * 0.45f), Color, false, -1.f, 0, 2.f);
+			}
+	}
 }
 
 void ABombermanGrid::InitGrid()
