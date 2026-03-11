@@ -1,21 +1,43 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
 #include "Grid/BombermanGrid.h"
+#include "Engine/World.h"
 
-// Sets default values
 ABombermanGrid::ABombermanGrid()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
+	PrimaryActorTick.bCanEverTick = true; // only needed for debug
 }
 
-// Called when the game starts or when spawned
 void ABombermanGrid::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InitGrid();
+	PlaceHardWalls();
+}
+
+void ABombermanGrid::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bDrawDebug)
+	{
+		for (int32 X = 0; X < BaseGridHeight; X++)
+			for (int32 Y = 0; Y < BaseGridWidth; Y++)
+			{
+				FVector Center = GetTileWorldPosition(X, Y) + FVector(0, 0, 50.f);
+				FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
+					Data[X][Y] == ETileContent::SoftBlock ? FColor::Orange :
+					Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
+					FColor::Green;
+				DrawDebugBox(GetWorld(), Center, FVector(TileSize * 0.45f), Color, false, -1.f, 0, 2.f);
+			}
+	}
+}
+
+void ABombermanGrid::InitGrid()
+{
+	Data.Empty();
 	Data.Reserve(BaseGridHeight);
 
 	for (int32 i = 0; i < BaseGridHeight; i++)
@@ -30,96 +52,100 @@ void ABombermanGrid::BeginPlay()
 
 		Data.Add(Row);
 	}
+
+	// Init actor map too
+	ActorMap.Empty();
+	ActorMap.Reserve(BaseGridHeight);
+	for (int32 i = 0; i < BaseGridHeight; i++)
+	{
+		TArray<AActor*> Row;
+		Row.Init(nullptr, BaseGridWidth);
+		ActorMap.Add(Row);
+	}
 }
 
-// Called every frame
-void ABombermanGrid::Tick(float DeltaTime)
+void ABombermanGrid::PlaceHardWalls()
 {
-	Super::Tick(DeltaTime);
+	// Classic bomberman hard wall pattern:
+	// Hard walls on every even row AND even column (checkerboard of pillars)
+	// Plus the border
 
+	for (int32 X = 0; X < BaseGridHeight; X++)
+	{
+		for (int32 Y = 0; Y < BaseGridWidth; Y++)
+		{
+			// Border
+			if (X == 0 || X == BaseGridHeight - 1 || Y == 0 || Y == BaseGridWidth - 1)
+			{
+				Data[X][Y] = ETileContent::HardBlock;
+				continue;
+			}
+
+			// Interior pillars - every even X and even Y
+			if (X % 2 == 0 && Y % 2 == 0)
+			{
+				Data[X][Y] = ETileContent::HardBlock;
+			}
+		}
+	}
+
+	// Spawn hard wall actors if class is set
+	if (!HardBlockClass) return;
+
+	for (int32 X = 0; X < BaseGridHeight; X++)
+	{
+		for (int32 Y = 0; Y < BaseGridWidth; Y++)
+		{
+			if (Data[X][Y] == ETileContent::HardBlock)
+			{
+				SpawnActorOnTile(X, Y, HardBlockClass);
+			}
+		}
+	}
 }
 
 // credits to: https://github.com/kubgus
-bool ABombermanGrid::IsInBounds(int32 X, int32 Y) const {
+bool ABombermanGrid::IsInBounds(int32 X, int32 Y) const
+{
 	return X >= 0 && X < BaseGridHeight && Y >= 0 && Y < BaseGridWidth;
 }
 // end credits
 
-bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const {
+bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const
+{
+	if (!IsInBounds(X, Y)) return false;
 
-	bool bIsWalkable;
-
-	if (!IsInBounds(X, Y))
-	{
-		return false;
-	}
-	else {
-		if (
-			Data[X][Y] == ETileContent::SoftBlock ||
-			Data[X][Y] == ETileContent::HardBlock ||
-			Data[X][Y] == ETileContent::Bomb
-			)
-		{
-			bIsWalkable = false;
-		}
-		else {
-			bIsWalkable = true;
-		}
-
-		/*
-		// can also be simplified to:
-		return !(Data[X][Y] == ETileContent::SoftBlock ||
-				 Data[X][Y] == ETileContent::HardBlock ||
-				 Data[X][Y] == ETileContent::Bomb);
-		*/
-	}
-
-	return bIsWalkable;
+	ETileContent Tile = Data[X][Y];
+	return Tile != ETileContent::SoftBlock &&
+		Tile != ETileContent::HardBlock &&
+		Tile != ETileContent::Bomb;
 }
 
-FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const {
-
+FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const
+{
 	FVector Result = GetActorLocation();
-
-	Result += { X * TileSize, Y * TileSize, 0.f };
-
+	Result += FVector(X * TileSize, Y * TileSize, 0.f);
 	return Result;
 }
 
-ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const {
-
+ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const
+{
 	if (!IsInBounds(X, Y))
-	{
-		return ETileContent::Empty;
-	}
-	else {
-		return Data[X][Y];
-	}
+		return ETileContent::HardBlock; // out of bounds = treat as hard wall, stops explosions
+
+	return Data[X][Y];
 }
 
-void ABombermanGrid::SetTileContent(int32 X, int32 Y, ETileContent NewContent) {
-	if (!IsInBounds(X, Y))
-	{
-		return;
-	}
-	else {
-		Data[X][Y] = NewContent;
-	}
+void ABombermanGrid::SetTileContent(int32 X, int32 Y, ETileContent NewContent)
+{
+	if (!IsInBounds(X, Y)) return;
+	Data[X][Y] = NewContent;
 }
 
-bool ABombermanGrid::IsTileSoft(int32 X, int32 Y) const {
-	if (!IsInBounds(X, Y))
-	{
-		return false;
-	}
-	else {
-		if (Data[X][Y] == ETileContent::SoftBlock) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+bool ABombermanGrid::IsTileSoft(int32 X, int32 Y) const
+{
+	if (!IsInBounds(X, Y)) return false;
+	return Data[X][Y] == ETileContent::SoftBlock;
 }
 
 FVector2D ABombermanGrid::GetGridPositionFromWorld(FVector WorldLocation) const
@@ -129,4 +155,44 @@ FVector2D ABombermanGrid::GetGridPositionFromWorld(FVector WorldLocation) const
 		FMath::RoundToInt(LocalPos.X / TileSize),
 		FMath::RoundToInt(LocalPos.Y / TileSize)
 	);
+}
+
+AActor* ABombermanGrid::SpawnActorOnTile(int32 X, int32 Y, TSubclassOf<AActor> ActorClass)
+{
+	if (!IsInBounds(X, Y) || !ActorClass) return nullptr;
+
+	// Don't double-spawn
+	if (ActorMap[X][Y] != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SpawnActorOnTile: tile [%d, %d] already has an actor"), X, Y);
+		return nullptr;
+	}
+
+	FVector WorldPos = GetTileWorldPosition(X, Y);
+	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ActorClass, WorldPos, FRotator::ZeroRotator);
+
+	if (Spawned)
+	{
+		ActorMap[X][Y] = Spawned;
+	}
+
+	return Spawned;
+}
+
+void ABombermanGrid::DestroyActorOnTile(int32 X, int32 Y)
+{
+	if (!IsInBounds(X, Y)) return;
+
+	AActor* Actor = ActorMap[X][Y];
+	if (!Actor) return;
+
+	Actor->Destroy();
+	ActorMap[X][Y] = nullptr;
+	Data[X][Y] = ETileContent::Empty;
+}
+
+AActor* ABombermanGrid::GetActorOnTile(int32 X, int32 Y) const
+{
+	if (!IsInBounds(X, Y)) return nullptr;
+	return ActorMap[X][Y];
 }

@@ -1,28 +1,25 @@
 // Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
-
 #include "Bomb/BombermanBomb.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Grid/BombermanGrid.h"
+#include "EngineUtils.h"
 
-// Sets default values
 ABombermanBomb::ABombermanBomb()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false; // dont need this since unreal has FTimerHandle
+	PrimaryActorTick.bCanEverTick = false;
 
 	BombMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Bomb Mesh"));
 	RootComponent = BombMesh;
 }
 
-// Called when the game starts or when spawned
 void ABombermanBomb::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FTimerManager/SetTimer
-	// gg, this took me 20 min because the docs are pure chaos and im not an npc to use chatgpt for this
+
+	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
+
 	GetWorld()->GetTimerManager().SetTimer(
 		FuseTimerHandle,
 		this,
@@ -30,69 +27,87 @@ void ABombermanBomb::BeginPlay()
 		FuseTimer,
 		false
 	);
-
-	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass())); // get ref to grid
-}
-
-// Called every frame
-void ABombermanBomb::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void ABombermanBomb::Detonate()
 {
-    if (!Grid) return;
-    CurrentState = EBombState::Detonating;
-    Explode();
+	if (CurrentState == EBombState::Detonating || CurrentState == EBombState::Explosion || CurrentState == EBombState::Cleanup)
+		return;
+
+	if (!Grid) return;
+
+	CurrentState = EBombState::Detonating;
+
+	// Clear timer - handles the case where we got chain-triggered before fuse expired
+	GetWorld()->GetTimerManager().ClearTimer(FuseTimerHandle);
+
+	Explode();
 }
 
 void ABombermanBomb::Explode()
 {
-    // used AI here because im retarded
+	CurrentState = EBombState::Explosion;
 
-    CurrentState = EBombState::Explosion;
+	FVector2D BombGridPos = Grid->GetGridPositionFromWorld(GetActorLocation());
+	int32 BX = FMath::RoundToInt(BombGridPos.X);
+	int32 BY = FMath::RoundToInt(BombGridPos.Y);
 
-    FVector2D BombPos = Grid->GetGridPositionFromWorld(GetActorLocation());
-    int32 BX = FMath::RoundToInt(BombPos.X);
-    int32 BY = FMath::RoundToInt(BombPos.Y);
+	// Clear our tile first - prevents other explosion rays from trying to chain back into us
+	Grid->SetTileContent(BX, BY, ETileContent::Empty);
 
-    // 4 directions: right, left, up, down
-    TArray<FVector2D> Directions = {
-        FVector2D(1, 0), FVector2D(-1, 0),
-        FVector2D(0, 1), FVector2D(0, -1)
-    };
+	const TArray<FVector2D> Directions = {
+		FVector2D(1, 0), FVector2D(-1, 0),
+		FVector2D(0, 1), FVector2D(0, -1)
+	};
 
-    for (FVector2D Dir : Directions)
-    {
-        for (int32 i = 1; i <= FMath::RoundToInt(BlastRadius); i++)
-        {
-            int32 X = BX + Dir.X * i;
-            int32 Y = BY + Dir.Y * i;
+	for (const FVector2D& Dir : Directions)
+	{
+		for (int32 i = 1; i <= BlastRadius; i++)
+		{
+			int32 X = BX + FMath::RoundToInt(Dir.X * i);
+			int32 Y = BY + FMath::RoundToInt(Dir.Y * i);
 
-            ETileContent Tile = Grid->GetTileContent(X, Y);
+			ETileContent Tile = Grid->GetTileContent(X, Y);
+			UE_LOG(LogTemp, Warning, TEXT("Checking tile [%d, %d] = %d"), X, Y, (int32)Tile);
 
-            if (Tile == ETileContent::HardBlock)
-            {
-                break; // blocked entirely
-            }
-            else if (Tile == ETileContent::SoftBlock)
-            {
-                Grid->SetTileContent(X, Y, ETileContent::Empty);
-                break; // destroys it, stops
-            }
-            else if (Tile == ETileContent::Bomb)
-            {
-                // chain reaction - TODO: find the bomb actor and call Detonate()
-                break;
-            }
-            // else Empty - continue expanding
-        }
-    }
+			if (Tile == ETileContent::HardBlock)
+			{
+				break;
+			}
+			else if (Tile == ETileContent::SoftBlock)
+			{
+				Grid->SetTileContent(X, Y, ETileContent::Empty);
+				break;
+			}
+			else if (Tile == ETileContent::Bomb)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Chain reaction triggered at [%d, %d]"), X, Y);
+				Grid->SetTileContent(X, Y, ETileContent::Empty);
+				TriggerChainReaction(X, Y);
+				break;
+			}
+		}
+	}
 
-    // cleanup
-    CurrentState = EBombState::Cleanup;
-    GetWorld()->GetTimerManager().ClearTimer(FuseTimerHandle);
-    Destroy();
+	CurrentState = EBombState::Cleanup;
+	Destroy();
+}
+
+void ABombermanBomb::TriggerChainReaction(int32 X, int32 Y)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Looking for bomb actor at [%d, %d]"), X, Y);
+
+	for (TActorIterator<ABombermanBomb> It(GetWorld()); It; ++It)
+	{
+		ABombermanBomb* OtherBomb = *It;
+		if (OtherBomb == this) continue;
+
+		FVector2D OtherGridPos = Grid->GetGridPositionFromWorld(OtherBomb->GetActorLocation());
+		if (FMath::RoundToInt(OtherGridPos.X) == X && FMath::RoundToInt(OtherGridPos.Y) == Y)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Found bomb actor, detonating"));
+			OtherBomb->Detonate();
+			return;
+		}
+	}
 }

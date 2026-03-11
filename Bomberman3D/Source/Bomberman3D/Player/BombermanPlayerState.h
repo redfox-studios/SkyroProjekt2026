@@ -1,26 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
-
 #include "Player/BombermanPlayerUpgrades.h"
-
 #include "BombermanPlayerState.generated.h"
-
-/**
- * 
- */
-
-/*
-// MOVED TO Player/BombermanPlayerUpgrades.h
-USTRUCT(BlueprintType)
-struct FPlayerUpgrades
-{
-    ...
-};
-*/
 
 UCLASS()
 class BOMBERMAN3D_API ABombermanPlayerState : public APlayerState
@@ -28,21 +13,13 @@ class BOMBERMAN3D_API ABombermanPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-    int32 Lives = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
+	int32 Lives = 3;
 
-    /*
-    // Unreal already has built-in score system
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-    int32 Score = 0;
-    */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
+	FBombermanPlayerUpgrades Upgrades;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-    FBombermanPlayerUpgrades Upgrades;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-    int32 BombCount = 1;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-    int32 BlastRadius = 1;
+	// Derived from upgrades, don't set these directly
+	int32 GetBombCount() const { return 1 + Upgrades.BombUp; }
+	int32 GetBlastRadius() const { return 1 + Upgrades.FireUp; }
 };
