@@ -30,10 +30,10 @@ void ABombermanGrid::Tick(float DeltaTime)
 		{
 			FVector Center = GetTileWorldPosition(X, Y) + FVector(0, 0, 50.f);
 			FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
-				Data[X][Y] == ETileContent::SoftBlock ? FColor::Orange :
+				Data[X][Y] == ETileContent::SoftBlock ? FColor::Green :
 				Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
 				Data[X][Y] == ETileContent::Door ? FColor::Blue :
-				FColor::Green;
+				FColor::White;
 			DrawDebugBox(GetWorld(), Center, FVector(TileSize * 0.45f), Color, false, -1.f, 0, 2.f);
 		}
 	}
