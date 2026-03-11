@@ -74,10 +74,7 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	int32 GX = FMath::RoundToInt(GridPos.X);
 	int32 GY = FMath::RoundToInt(GridPos.Y);
 
-	// Don't place if tile is already occupied
 	if (Grid->GetTileContent(GX, GY) != ETileContent::Empty) return;
-
-	// Check bomb count limit
 	if (PS && ActiveBombCount >= PS->GetBombCount()) return;
 
 	FVector WorldPos = Grid->GetTileWorldPosition(GX, GY);
@@ -85,17 +82,14 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	ABombermanBomb* Bomb = GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPos, FRotator::ZeroRotator);
 	if (!Bomb) return;
 
-	// Wire blast radius from player state
 	if (PS)
 	{
 		Bomb->BlastRadius = PS->GetBlastRadius();
 	}
 
-	// Mark tile as occupied
 	Grid->SetTileContent(GX, GY, ETileContent::Bomb);
 	ActiveBombCount++;
 
-	// Decrement active count when bomb detonates
 	Bomb->OnDestroyed.AddDynamic(this, &ABombermanCharacter::OnBombDestroyed);
 
 	UE_LOG(LogTemp, Warning, TEXT("Bomb placed at [%d, %d]"), GX, GY);
