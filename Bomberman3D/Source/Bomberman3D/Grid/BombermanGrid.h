@@ -48,9 +48,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float TileSize = 100.f;
 
-	// Assign a hard block static mesh actor BP here in editor
+	// How many tiles around player spawn are guaranteed empty (from top-left corner)
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	int32 PlayerSafeZone = 2;
+
+	// 0.0 - 1.0, how dense soft blocks are
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	float SoftBlockDensity = 0.65f;
+
+	// Actor classes - assign in editor
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> HardBlockClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> SoftBlockClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> DoorClass;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -93,15 +107,30 @@ public:
 
 	float GetTileSize() const { return TileSize; }
 
+	// Returns player spawn position in world space (top-left safe zone)
+	FVector GetPlayerSpawnPosition() const;
+
+	// Debug
 	UPROPERTY(EditAnywhere, Category = "Grid Debug")
 	bool bDrawDebug = false;
 
 private:
 	void InitGrid();
 	void PlaceHardWalls();
+	void GenerateSoftBlocks();
+	void PlaceDoor();
+
+	// Flood-fill from player spawn, returns all reachable empty tiles
+	TArray<FVector2D> FloodFill(int32 StartX, int32 StartY) const;
+
+	// Check if door tile is reachable from player spawn
+	// (temporarily treats the soft block hiding the door as empty)
+	bool IsDoorReachable(int32 DoorX, int32 DoorY) const;
 
 	TArray<TArray<ETileContent>> Data;
-
-	// Parallel array to Data - tracks which actor is on each tile
 	TArray<TArray<AActor*>> ActorMap;
+
+	// Where the door is hidden (under a soft block)
+	int32 DoorTileX = -1;
+	int32 DoorTileY = -1;
 };

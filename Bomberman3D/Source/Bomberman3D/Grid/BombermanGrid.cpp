@@ -5,7 +5,7 @@
 
 ABombermanGrid::ABombermanGrid()
 {
-	PrimaryActorTick.bCanEverTick = true; // only needed for debug
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ABombermanGrid::BeginPlay()
@@ -14,24 +14,28 @@ void ABombermanGrid::BeginPlay()
 
 	InitGrid();
 	PlaceHardWalls();
+	GenerateSoftBlocks();
+	PlaceDoor();
 }
 
 void ABombermanGrid::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bDrawDebug)
+	if (!bDrawDebug) return;
+
+	for (int32 X = 0; X < BaseGridHeight; X++)
 	{
-		for (int32 X = 0; X < BaseGridHeight; X++)
-			for (int32 Y = 0; Y < BaseGridWidth; Y++)
-			{
-				FVector Center = GetTileWorldPosition(X, Y) + FVector(0, 0, 50.f);
-				FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
-					Data[X][Y] == ETileContent::SoftBlock ? FColor::Orange :
-					Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
-					FColor::Green;
-				DrawDebugBox(GetWorld(), Center, FVector(TileSize * 0.45f), Color, false, -1.f, 0, 2.f);
-			}
+		for (int32 Y = 0; Y < BaseGridWidth; Y++)
+		{
+			FVector Center = GetTileWorldPosition(X, Y) + FVector(0, 0, 50.f);
+			FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
+				Data[X][Y] == ETileContent::SoftBlock ? FColor::Orange :
+				Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
+				Data[X][Y] == ETileContent::Door ? FColor::Blue :
+				FColor::Green;
+			DrawDebugBox(GetWorld(), Center, FVector(TileSize * 0.45f), Color, false, -1.f, 0, 2.f);
+		}
 	}
 }
 
@@ -40,68 +44,183 @@ void ABombermanGrid::InitGrid()
 	Data.Empty();
 	Data.Reserve(BaseGridHeight);
 
+	ActorMap.Empty();
+	ActorMap.Reserve(BaseGridHeight);
+
 	for (int32 i = 0; i < BaseGridHeight; i++)
 	{
 		TArray<ETileContent> Row;
-		Row.Reserve(BaseGridWidth);
-
-		for (int32 j = 0; j < BaseGridWidth; j++)
-		{
-			Row.Add(ETileContent::Empty);
-		}
-
+		Row.Init(ETileContent::Empty, BaseGridWidth);
 		Data.Add(Row);
-	}
 
-	// Init actor map too
-	ActorMap.Empty();
-	ActorMap.Reserve(BaseGridHeight);
-	for (int32 i = 0; i < BaseGridHeight; i++)
-	{
-		TArray<AActor*> Row;
-		Row.Init(nullptr, BaseGridWidth);
-		ActorMap.Add(Row);
+		TArray<AActor*> ActorRow;
+		ActorRow.Init(nullptr, BaseGridWidth);
+		ActorMap.Add(ActorRow);
 	}
 }
 
 void ABombermanGrid::PlaceHardWalls()
 {
-	// Classic bomberman hard wall pattern:
-	// Hard walls on every even row AND even column (checkerboard of pillars)
-	// Plus the border
-
 	for (int32 X = 0; X < BaseGridHeight; X++)
 	{
 		for (int32 Y = 0; Y < BaseGridWidth; Y++)
 		{
-			// Border
-			if (X == 0 || X == BaseGridHeight - 1 || Y == 0 || Y == BaseGridWidth - 1)
-			{
-				Data[X][Y] = ETileContent::HardBlock;
-				continue;
-			}
+			bool bIsBorder = (X == 0 || X == BaseGridHeight - 1 || Y == 0 || Y == BaseGridWidth - 1);
+			bool bIsPillar = (X % 2 == 0 && Y % 2 == 0);
 
-			// Interior pillars - every even X and even Y
-			if (X % 2 == 0 && Y % 2 == 0)
+			if (bIsBorder || bIsPillar)
 			{
 				Data[X][Y] = ETileContent::HardBlock;
+
+				if (HardBlockClass)
+				{
+					SpawnActorOnTile(X, Y, HardBlockClass);
+				}
 			}
 		}
 	}
+}
 
-	// Spawn hard wall actors if class is set
-	if (!HardBlockClass) return;
+void ABombermanGrid::GenerateSoftBlocks()
+{
+	if (!SoftBlockClass) return;
 
-	for (int32 X = 0; X < BaseGridHeight; X++)
+	// Player spawns at top-left interior tile (1,1)
+	// Safe zone: no soft blocks within PlayerSafeZone tiles of spawn
+	const int32 SpawnX = 1;
+	const int32 SpawnY = 1;
+
+	for (int32 X = 1; X < BaseGridHeight - 1; X++)
 	{
-		for (int32 Y = 0; Y < BaseGridWidth; Y++)
+		for (int32 Y = 1; Y < BaseGridWidth - 1; Y++)
 		{
-			if (Data[X][Y] == ETileContent::HardBlock)
+			// Skip hard blocks
+			if (Data[X][Y] == ETileContent::HardBlock) continue;
+
+			// Skip player safe zone
+			if (FMath::Abs(X - SpawnX) <= PlayerSafeZone && FMath::Abs(Y - SpawnY) <= PlayerSafeZone) continue;
+
+			// Random density check
+			if (FMath::FRand() <= SoftBlockDensity)
 			{
-				SpawnActorOnTile(X, Y, HardBlockClass);
+				Data[X][Y] = ETileContent::SoftBlock;
+				SpawnActorOnTile(X, Y, SoftBlockClass);
 			}
 		}
 	}
+}
+
+void ABombermanGrid::PlaceDoor()
+{
+	// Collect all soft block tiles
+	TArray<FVector2D> SoftTiles;
+	for (int32 X = 1; X < BaseGridHeight - 1; X++)
+	{
+		for (int32 Y = 1; Y < BaseGridWidth - 1; Y++)
+		{
+			if (Data[X][Y] == ETileContent::SoftBlock)
+			{
+				SoftTiles.Add(FVector2D(X, Y));
+			}
+		}
+	}
+
+	if (SoftTiles.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlaceDoor: no soft blocks to hide door under!"));
+		return;
+	}
+
+	// Shuffle and try candidates until we find one where door is reachable
+	// Fisher-Yates shuffle
+	for (int32 i = SoftTiles.Num() - 1; i > 0; i--)
+	{
+		int32 j = FMath::RandRange(0, i);
+		SoftTiles.Swap(i, j);
+	}
+
+	for (const FVector2D& Candidate : SoftTiles)
+	{
+		int32 CX = FMath::RoundToInt(Candidate.X);
+		int32 CY = FMath::RoundToInt(Candidate.Y);
+
+		if (IsDoorReachable(CX, CY))
+		{
+			DoorTileX = CX;
+			DoorTileY = CY;
+			// Door is hidden - tile stays SoftBlock visually until destroyed
+			UE_LOG(LogTemp, Log, TEXT("Door hidden at [%d, %d]"), DoorTileX, DoorTileY);
+			return;
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("PlaceDoor: could not find a reachable door position!"));
+}
+
+bool ABombermanGrid::IsDoorReachable(int32 DoorX, int32 DoorY) const
+{
+	// Temporarily treat the door tile as empty for the flood fill check
+	// We do this by passing the door coords to FloodFill and checking if it reaches them
+
+	// Player spawn is always (1, 1)
+	TArray<FVector2D> Reachable = FloodFill(1, 1);
+
+	// Check if door tile is in reachable set
+	// (treat it as passable since destroying the soft block reveals it)
+	for (const FVector2D& Tile : Reachable)
+	{
+		// Adjacent to door tile counts as reachable
+		int32 TX = FMath::RoundToInt(Tile.X);
+		int32 TY = FMath::RoundToInt(Tile.Y);
+
+		if ((FMath::Abs(TX - DoorX) == 1 && TY == DoorY) ||
+			(FMath::Abs(TY - DoorY) == 1 && TX == DoorX))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+TArray<FVector2D> ABombermanGrid::FloodFill(int32 StartX, int32 StartY) const
+{
+	TArray<FVector2D> Visited;
+	TArray<FVector2D> Queue;
+
+	auto Key = [&](int32 X, int32 Y) { return FVector2D(X, Y); };
+
+	Queue.Add(Key(StartX, StartY));
+	Visited.Add(Key(StartX, StartY));
+
+	const TArray<FVector2D> Dirs = {
+		FVector2D(1, 0), FVector2D(-1, 0),
+		FVector2D(0, 1), FVector2D(0, -1)
+	};
+
+	while (Queue.Num() > 0)
+	{
+		FVector2D Current = Queue[0];
+		Queue.RemoveAt(0);
+
+		for (const FVector2D& Dir : Dirs)
+		{
+			int32 NX = FMath::RoundToInt(Current.X + Dir.X);
+			int32 NY = FMath::RoundToInt(Current.Y + Dir.Y);
+
+			if (!IsInBounds(NX, NY)) continue;
+			if (Data[NX][NY] == ETileContent::HardBlock) continue;
+			if (Data[NX][NY] == ETileContent::SoftBlock) continue; // can't walk through soft blocks
+
+			FVector2D Next = Key(NX, NY);
+			if (Visited.Contains(Next)) continue;
+
+			Visited.Add(Next);
+			Queue.Add(Next);
+		}
+	}
+
+	return Visited;
 }
 
 // credits to: https://github.com/kubgus
@@ -123,15 +242,13 @@ bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const
 
 FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const
 {
-	FVector Result = GetActorLocation();
-	Result += FVector(X * TileSize, Y * TileSize, 0.f);
-	return Result;
+	return GetActorLocation() + FVector(X * TileSize, Y * TileSize, 0.f);
 }
 
 ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const
 {
 	if (!IsInBounds(X, Y))
-		return ETileContent::HardBlock; // out of bounds = treat as hard wall, stops explosions
+		return ETileContent::HardBlock;
 
 	return Data[X][Y];
 }
@@ -157,11 +274,16 @@ FVector2D ABombermanGrid::GetGridPositionFromWorld(FVector WorldLocation) const
 	);
 }
 
+FVector ABombermanGrid::GetPlayerSpawnPosition() const
+{
+	// Player always spawns at tile (1, 1) - top-left interior
+	return GetTileWorldPosition(1, 1);
+}
+
 AActor* ABombermanGrid::SpawnActorOnTile(int32 X, int32 Y, TSubclassOf<AActor> ActorClass)
 {
 	if (!IsInBounds(X, Y) || !ActorClass) return nullptr;
 
-	// Don't double-spawn
 	if (ActorMap[X][Y] != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SpawnActorOnTile: tile [%d, %d] already has an actor"), X, Y);
@@ -185,6 +307,16 @@ void ABombermanGrid::DestroyActorOnTile(int32 X, int32 Y)
 
 	AActor* Actor = ActorMap[X][Y];
 	if (!Actor) return;
+
+	// If this was the door tile, spawn the door actor now
+	if (X == DoorTileX && Y == DoorTileY && DoorClass)
+	{
+		Data[X][Y] = ETileContent::Door;
+		ActorMap[X][Y] = nullptr;
+		Actor->Destroy();
+		SpawnActorOnTile(X, Y, DoorClass);
+		return;
+	}
 
 	Actor->Destroy();
 	ActorMap[X][Y] = nullptr;
