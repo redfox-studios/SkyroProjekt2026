@@ -67,6 +67,9 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 
 	ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>();
 
+	UE_LOG(LogTemp, Warning, TEXT("PlaceBomb called. ActiveBombCount: %d, MaxBombs: %d"),
+		ActiveBombCount, PS ? PS->GetBombCount() : -1);
+
 	FVector2D GridPos = GetCurrentGridPosition();
 	int32 GX = FMath::RoundToInt(GridPos.X);
 	int32 GY = FMath::RoundToInt(GridPos.Y);
@@ -75,7 +78,7 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	if (Grid->GetTileContent(GX, GY) != ETileContent::Empty) return;
 
 	// Check bomb count limit
-	if (PS && ActiveBombCount >= PS->BombCount) return;
+	if (PS && ActiveBombCount >= PS->GetBombCount()) return;
 
 	FVector WorldPos = Grid->GetTileWorldPosition(GX, GY);
 
@@ -85,7 +88,7 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	// Wire blast radius from player state
 	if (PS)
 	{
-		Bomb->BlastRadius = PS->BlastRadius;
+		Bomb->BlastRadius = PS->GetBlastRadius();
 	}
 
 	// Mark tile as occupied

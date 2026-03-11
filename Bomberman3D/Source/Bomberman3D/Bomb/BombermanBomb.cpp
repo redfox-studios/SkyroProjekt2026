@@ -68,6 +68,7 @@ void ABombermanBomb::Explode()
 			int32 Y = BY + FMath::RoundToInt(Dir.Y * i);
 
 			ETileContent Tile = Grid->GetTileContent(X, Y);
+			UE_LOG(LogTemp, Warning, TEXT("Checking tile [%d, %d] = %d"), X, Y, (int32)Tile);
 
 			if (Tile == ETileContent::HardBlock)
 			{
@@ -80,7 +81,7 @@ void ABombermanBomb::Explode()
 			}
 			else if (Tile == ETileContent::Bomb)
 			{
-				// Clear tile immediately so no other ray double-triggers this bomb
+				UE_LOG(LogTemp, Warning, TEXT("Chain reaction triggered at [%d, %d]"), X, Y);
 				Grid->SetTileContent(X, Y, ETileContent::Empty);
 				TriggerChainReaction(X, Y);
 				break;
@@ -94,6 +95,8 @@ void ABombermanBomb::Explode()
 
 void ABombermanBomb::TriggerChainReaction(int32 X, int32 Y)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Looking for bomb actor at [%d, %d]"), X, Y);
+
 	for (TActorIterator<ABombermanBomb> It(GetWorld()); It; ++It)
 	{
 		ABombermanBomb* OtherBomb = *It;
@@ -102,6 +105,7 @@ void ABombermanBomb::TriggerChainReaction(int32 X, int32 Y)
 		FVector2D OtherGridPos = Grid->GetGridPositionFromWorld(OtherBomb->GetActorLocation());
 		if (FMath::RoundToInt(OtherGridPos.X) == X && FMath::RoundToInt(OtherGridPos.Y) == Y)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Found bomb actor, detonating"));
 			OtherBomb->Detonate();
 			return;
 		}

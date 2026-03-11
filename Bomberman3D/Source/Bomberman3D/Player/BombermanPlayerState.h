@@ -45,4 +45,7 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
     int32 BlastRadius = 1;
+
+    UFUNCTION(BlueprintCallable) int32 GetBombCount() const { return 1 + Upgrades.BombUp; }
+    UFUNCTION(BlueprintCallable) int32 GetBlastRadius() const { return 1 + Upgrades.FireUp; }
 };
