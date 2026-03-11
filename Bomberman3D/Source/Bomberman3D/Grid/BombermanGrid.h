@@ -23,12 +23,12 @@ class BOMBERMAN3D_API ABombermanGrid : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ABombermanGrid();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// --- config ---
 
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	int32 BaseGridWidth = 13;
@@ -37,7 +37,7 @@ protected:
 	int32 BaseGridHeight = 11;
 
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
-	int32 GridGrowthPerStages = 10; // every X stages, grid grows by 1 in each direction
+	int32 GridGrowthPerStages = 10;
 
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	int32 MaxGridWidth = 21;
@@ -48,15 +48,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float TileSize = 100.f;
 
+	// Assign a hard block static mesh actor BP here in editor
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> HardBlockClass;
+
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// --- tile queries ---
+
+	UFUNCTION(BlueprintCallable)
+	bool IsInBounds(int32 X, int32 Y) const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTileWalkable(int32 X, int32 Y) const;
 
 	UFUNCTION(BlueprintCallable)
-	FVector GetTileWorldPosition(int32 X, int32 Y) const;
+	bool IsTileSoft(int32 X, int32 Y) const;
 
 	UFUNCTION(BlueprintCallable)
 	ETileContent GetTileContent(int32 X, int32 Y) const;
@@ -65,18 +73,32 @@ public:
 	void SetTileContent(int32 X, int32 Y, ETileContent NewContent);
 
 	UFUNCTION(BlueprintCallable)
-	bool IsTileSoft(int32 X, int32 Y) const;
-
-	UFUNCTION(BlueprintCallable)
-	bool IsInBounds(int32 X, int32 Y) const;
-
-public:
-	float GetTileSize() const { return TileSize; }
-	FVector2D GetCurrentGridPosition() const;
+	FVector GetTileWorldPosition(int32 X, int32 Y) const;
 
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetGridPositionFromWorld(FVector WorldLocation) const;
 
+	// --- actor spawning ---
+
+	UFUNCTION(BlueprintCallable)
+	AActor* SpawnActorOnTile(int32 X, int32 Y, TSubclassOf<AActor> ActorClass);
+
+	UFUNCTION(BlueprintCallable)
+	void DestroyActorOnTile(int32 X, int32 Y);
+
+	UFUNCTION(BlueprintCallable)
+	AActor* GetActorOnTile(int32 X, int32 Y) const;
+
+	// --- misc ---
+
+	float GetTileSize() const { return TileSize; }
+
 private:
+	void InitGrid();
+	void PlaceHardWalls();
+
 	TArray<TArray<ETileContent>> Data;
+
+	// Parallel array to Data - tracks which actor is on each tile
+	TArray<TArray<AActor*>> ActorMap;
 };
