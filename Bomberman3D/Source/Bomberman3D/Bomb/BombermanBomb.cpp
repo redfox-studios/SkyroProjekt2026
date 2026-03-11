@@ -76,7 +76,7 @@ void ABombermanBomb::Explode()
 			}
 			else if (Tile == ETileContent::SoftBlock)
 			{
-				Grid->SetTileContent(X, Y, ETileContent::Empty);
+				Grid->DestroyActorOnTile(X, Y);
 				break;
 			}
 			else if (Tile == ETileContent::Bomb)
