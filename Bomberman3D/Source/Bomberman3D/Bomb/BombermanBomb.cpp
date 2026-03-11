@@ -31,13 +31,16 @@ void ABombermanBomb::BeginPlay()
 
 void ABombermanBomb::Detonate()
 {
-	// Already past Placed/Armed - don't double-detonate
 	if (CurrentState == EBombState::Detonating || CurrentState == EBombState::Explosion || CurrentState == EBombState::Cleanup)
 		return;
 
 	if (!Grid) return;
 
 	CurrentState = EBombState::Detonating;
+
+	// Clear timer - handles the case where we got chain-triggered before fuse expired
+	GetWorld()->GetTimerManager().ClearTimer(FuseTimerHandle);
+
 	Explode();
 }
 
@@ -49,10 +52,9 @@ void ABombermanBomb::Explode()
 	int32 BX = FMath::RoundToInt(BombGridPos.X);
 	int32 BY = FMath::RoundToInt(BombGridPos.Y);
 
-	// Clear this tile in the grid
+	// Clear our tile first - prevents other explosion rays from trying to chain back into us
 	Grid->SetTileContent(BX, BY, ETileContent::Empty);
 
-	// 4 directions: right, left, forward, back
 	const TArray<FVector2D> Directions = {
 		FVector2D(1, 0), FVector2D(-1, 0),
 		FVector2D(0, 1), FVector2D(0, -1)
@@ -69,45 +71,36 @@ void ABombermanBomb::Explode()
 
 			if (Tile == ETileContent::HardBlock)
 			{
-				break; // hard wall, stop completely
+				break;
 			}
 			else if (Tile == ETileContent::SoftBlock)
 			{
 				Grid->SetTileContent(X, Y, ETileContent::Empty);
-				break; // destroys soft block, stops here
+				break;
 			}
 			else if (Tile == ETileContent::Bomb)
 			{
+				// Clear tile immediately so no other ray double-triggers this bomb
+				Grid->SetTileContent(X, Y, ETileContent::Empty);
 				TriggerChainReaction(X, Y);
-				break; // chain reaction triggered, stop this ray
+				break;
 			}
-			// ETileContent::Empty - keep expanding
 		}
 	}
 
-	// Cleanup
 	CurrentState = EBombState::Cleanup;
-	GetWorld()->GetTimerManager().ClearTimer(FuseTimerHandle);
 	Destroy();
 }
 
 void ABombermanBomb::TriggerChainReaction(int32 X, int32 Y)
 {
-	if (!Grid) return;
-
-	FVector TileWorld = Grid->GetTileWorldPosition(X, Y);
-
-	// Find the bomb actor sitting on this tile and detonate it
 	for (TActorIterator<ABombermanBomb> It(GetWorld()); It; ++It)
 	{
 		ABombermanBomb* OtherBomb = *It;
 		if (OtherBomb == this) continue;
 
 		FVector2D OtherGridPos = Grid->GetGridPositionFromWorld(OtherBomb->GetActorLocation());
-		int32 OX = FMath::RoundToInt(OtherGridPos.X);
-		int32 OY = FMath::RoundToInt(OtherGridPos.Y);
-
-		if (OX == X && OY == Y)
+		if (FMath::RoundToInt(OtherGridPos.X) == X && FMath::RoundToInt(OtherGridPos.Y) == Y)
 		{
 			OtherBomb->Detonate();
 			return;

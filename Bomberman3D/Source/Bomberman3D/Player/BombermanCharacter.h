@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
 #pragma once
 
@@ -24,32 +24,22 @@ class BOMBERMAN3D_API ABombermanCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ABombermanCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+public:
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// --- input ---
+	// --- input actions ---
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* MoveAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* PlaceBombAction;
-
-	// --- input refs ---
-
-	void Move(const FInputActionValue& Value);
-	void PlaceBomb(const FInputActionValue& Value);
 
 	// --- camera ---
 
@@ -60,14 +50,25 @@ public:
 	UCameraComponent* Camera;
 
 	// --- bomb ---
+
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
 	TSubclassOf<ABombermanBomb> BombClass;
 
-	// --- misc ---
+	// --- grid ---
 
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	ABombermanGrid* Grid;
 
 	UFUNCTION()
 	FVector2D GetCurrentGridPosition() const;
+
+private:
+	void Move(const FInputActionValue& Value);
+	void PlaceBomb(const FInputActionValue& Value);
+
+	// Tracks how many bombs are currently live in the world
+	int32 ActiveBombCount = 0;
+
+	UFUNCTION()
+	void OnBombDestroyed(AActor* DestroyedActor);
 };

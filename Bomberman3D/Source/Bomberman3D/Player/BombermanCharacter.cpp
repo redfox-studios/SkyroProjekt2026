@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
 #include "Player/BombermanCharacter.h"
 
@@ -8,22 +7,21 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Grid/BombermanGrid.h"
+#include "Bomb/BombermanBomb.h"
+#include "Player/BombermanPlayerState.h"
 
-#include "GameFramework/CharacterMovementComponent.h" // GetCharacterMovement()
+#include "GameFramework/CharacterMovementComponent.h"
 
-// Sets default values
 ABombermanCharacter::ABombermanCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false; // dont need ts
+	PrimaryActorTick.bCanEverTick = false;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
-	SpringArm->bUsePawnControlRotation = false; // bomberman has a fixed camera
+	SpringArm->bUsePawnControlRotation = false;
 	SpringArm->TargetArmLength = 400.f;
-	SpringArm->bInheritYaw = false; // fixing the rotation bug
-	GetCharacterMovement()->bOrientRotationToMovement = true; // fixing the rotation bug
-	SpringArm->bDoCollisionTest = false; // TDD says no collision
+	SpringArm->bInheritYaw = false;
+	SpringArm->bDoCollisionTest = false;
 	SpringArm->SetRelativeRotation(FRotator(-65.f, 0.f, 0.f));
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -33,22 +31,18 @@ ABombermanCharacter::ABombermanCharacter()
 	bUseControllerRotationYaw = false;
 }
 
-// Called when the game starts or when spawned
 void ABombermanCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass())); // moved from BP
+
+	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
 }
 
-// Called every frame
 void ABombermanCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -60,8 +54,6 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	}
 }
 
-// --- custom funcs ---
-
 void ABombermanCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D Input = Value.Get<FVector2D>();
@@ -71,15 +63,44 @@ void ABombermanCharacter::Move(const FInputActionValue& Value)
 
 void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 {
-	if (Grid && BombClass) // meow meow null check
+	if (!Grid || !BombClass) return;
+
+	ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>();
+
+	FVector2D GridPos = GetCurrentGridPosition();
+	int32 GX = FMath::RoundToInt(GridPos.X);
+	int32 GY = FMath::RoundToInt(GridPos.Y);
+
+	// Don't place if tile is already occupied
+	if (Grid->GetTileContent(GX, GY) != ETileContent::Empty) return;
+
+	// Check bomb count limit
+	if (PS && ActiveBombCount >= PS->BombCount) return;
+
+	FVector WorldPos = Grid->GetTileWorldPosition(GX, GY);
+
+	ABombermanBomb* Bomb = GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPos, FRotator::ZeroRotator);
+	if (!Bomb) return;
+
+	// Wire blast radius from player state
+	if (PS)
 	{
-		FVector2D GridPosition = GetCurrentGridPosition();
-		FVector WorldPosition = Grid->GetTileWorldPosition(GridPosition.X, GridPosition.Y);
-
-		GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPosition, GetActorRotation());
-
-		UE_LOG(LogTemp, Warning, TEXT("Bomb Placed"));
+		Bomb->BlastRadius = PS->BlastRadius;
 	}
+
+	// Mark tile as occupied
+	Grid->SetTileContent(GX, GY, ETileContent::Bomb);
+	ActiveBombCount++;
+
+	// Decrement active count when bomb detonates
+	Bomb->OnDestroyed.AddDynamic(this, &ABombermanCharacter::OnBombDestroyed);
+
+	UE_LOG(LogTemp, Warning, TEXT("Bomb placed at [%d, %d]"), GX, GY);
+}
+
+void ABombermanCharacter::OnBombDestroyed(AActor* DestroyedActor)
+{
+	ActiveBombCount = FMath::Max(0, ActiveBombCount - 1);
 }
 
 FVector2D ABombermanCharacter::GetCurrentGridPosition() const

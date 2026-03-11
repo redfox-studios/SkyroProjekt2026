@@ -41,7 +41,7 @@ public:
     FBombermanPlayerUpgrades Upgrades;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-    int32 BombCount = 1;
+    int32 BombCount = 10; // just for testing, ill change it back to 1 someday
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
     int32 BlastRadius = 1;

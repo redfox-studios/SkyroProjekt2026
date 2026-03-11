@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
 #pragma once
 
@@ -21,8 +21,8 @@ UCLASS()
 class BOMBERMAN3D_API ABombermanGrid : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABombermanGrid();
 
@@ -48,7 +48,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float TileSize = 100.f;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

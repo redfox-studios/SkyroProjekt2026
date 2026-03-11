@@ -41,7 +41,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
 	float FuseTimer = 2.5f;
 
-	// Tile count, not world units. 1 = classic bomberman default.
+	// Tile count. 1 = default bomberman blast range.
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
 	int32 BlastRadius = 1;
 
@@ -61,7 +61,5 @@ public:
 
 private:
 	void Explode();
-
-	// Finds a bomb actor at a given grid tile and detonates it (chain reaction)
 	void TriggerChainReaction(int32 X, int32 Y);
 };
