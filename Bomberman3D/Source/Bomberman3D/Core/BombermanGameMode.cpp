@@ -235,5 +235,20 @@ void ABombermanGameMode::OnGameOver()
 		break;
 	}
 
+	// Show game over widget
+	if (GameOverWidgetClass)
+	{
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (PC)
+		{
+			UUserWidget* Widget = CreateWidget<UUserWidget>(PC, GameOverWidgetClass);
+			if (Widget)
+			{
+				Widget->AddToViewport();
+				PC->bShowMouseCursor = true;
+			}
+		}
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("Game over!"));
 }
