@@ -104,6 +104,7 @@ void ABombermanGrid::GenerateSoftBlocks()
 			if (FMath::FRand() <= SoftBlockDensity)
 			{
 				Data[X][Y] = ETileContent::SoftBlock;
+				UE_LOG(LogTemp, Log, TEXT("SoftBlock at [%d,%d]"), X, Y);
 				SpawnActorOnTile(X, Y, SoftBlockClass);
 			}
 		}

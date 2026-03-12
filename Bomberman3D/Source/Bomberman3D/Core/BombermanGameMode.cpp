@@ -51,7 +51,9 @@ void ABombermanGameMode::StartStage()
 		break;
 	}
 
-	SpawnEnemies();
+	// Instead of calling SpawnEnemies directly
+	FTimerHandle SpawnDelay;
+	GetWorld()->GetTimerManager().SetTimer(SpawnDelay, this, &ABombermanGameMode::SpawnEnemies, 0.1f, false);
 
 	// Tick timer every second
 	GetWorld()->GetTimerManager().SetTimer(
@@ -106,12 +108,26 @@ void ABombermanGameMode::SpawnEnemies()
 	{
 		if (Spawned >= EnemyCount) break;
 
+		UE_LOG(LogTemp, Log, TEXT("Trying to spawn at [%d,%d] content: %d"),
+			FMath::RoundToInt(Tile.X), FMath::RoundToInt(Tile.Y),
+			(int32)Grid->GetTileContent(FMath::RoundToInt(Tile.X), FMath::RoundToInt(Tile.Y)));
+
 		FVector WorldPos = Grid->GetTileWorldPosition(
 			FMath::RoundToInt(Tile.X),
 			FMath::RoundToInt(Tile.Y)
 		);
+		WorldPos.Z += 50.f; // so enemies wont noclip to landscape
 
-		AActor* Enemy = GetWorld()->SpawnActor<AActor>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator);
+		// AActor* Enemy = GetWorld()->SpawnActor<AActor>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator);
+		// if (Enemy)
+		// {
+		//	  Spawned++;
+		//	  BombermanGameState->EnemiesRemaining++;
+		// }
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		AEnemyBase* Enemy = GetWorld()->SpawnActor<AEnemyBase>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator, SpawnParams);
 		if (Enemy)
 		{
 			Spawned++;
