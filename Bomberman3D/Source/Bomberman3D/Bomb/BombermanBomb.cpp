@@ -9,10 +9,12 @@
 
 ABombermanBomb::ABombermanBomb()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	BombMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Bomb Mesh"));
 	RootComponent = BombMesh;
+
+	BombMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 }
 
 void ABombermanBomb::BeginPlay()
@@ -28,6 +30,23 @@ void ABombermanBomb::BeginPlay()
 		FuseTimer,
 		false
 	);
+}
+
+void ABombermanBomb::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bCollisionEnabled || !OwnerCharacter || !Grid) return;
+
+	FVector2D PlayerTile = Grid->GetGridPositionFromWorld(OwnerCharacter->GetActorLocation());
+	FVector2D BombTile = Grid->GetGridPositionFromWorld(GetActorLocation());
+
+	if (FMath::RoundToInt(PlayerTile.X) != FMath::RoundToInt(BombTile.X) ||
+		FMath::RoundToInt(PlayerTile.Y) != FMath::RoundToInt(BombTile.Y))
+	{
+		bCollisionEnabled = true;
+		BombMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	}
 }
 
 void ABombermanBomb::Detonate()

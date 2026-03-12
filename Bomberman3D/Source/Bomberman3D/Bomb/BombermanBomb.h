@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/Character.h"
 #include "BombermanBomb.generated.h"
 
 // Placed -> Armed -> Detonating -> Explosion -> Cleanup
@@ -37,6 +38,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
@@ -55,6 +57,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	ABombermanGrid* Grid;
 
+	ACharacter* OwnerCharacter = nullptr;
+
 	FTimerHandle FuseTimerHandle;
 
 	UFUNCTION()
@@ -64,4 +68,6 @@ private:
 	void Explode();
 	void TriggerChainReaction(int32 X, int32 Y);
 	void DamageActorsOnTile(int32 X, int32 Y) const;
+
+	bool bCollisionEnabled = false;
 };
