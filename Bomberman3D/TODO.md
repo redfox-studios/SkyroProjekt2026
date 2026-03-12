@@ -10,12 +10,14 @@ AI enhanced TODO
 - [x] IsTileWalkable()
 - [x] IsTileSoft()
 - [x] GetTileWorldPosition()
-- [x] GetTileContent()
+- [x] GetTileContent() - OOB returns HardBlock so explosions stop at map edge
 - [x] SetTileContent()
-- [ ] SpawnActorOnTile() - spawn soft blocks, bombs, upgrades, door
-- [ ] DestroyActorOnTile()
-- [ ] Hard wall layout (static, placed on BeginPlay)
-- [ ] Debug visualization (draw tiles in editor so you can see the grid)
+- [x] SpawnActorOnTile()
+- [x] DestroyActorOnTile() - also reveals door if it was hidden under the destroyed soft block
+- [x] Hard wall layout (border + checkerboard pillars, placed on BeginPlay)
+- [x] Procedural soft block generation (density configurable, safe zone around player spawn)
+- [x] Door placement (hidden under random soft block, flood-fill check guarantees reachability)
+- [x] Debug visualization (color coded: red=hard, green=soft, yellow=bomb, blue=door, white=empty)
 
 ### Player
 - [x] BombermanCharacter class (inherits ACharacter)
@@ -23,26 +25,33 @@ AI enhanced TODO
 - [x] Fixed camera setup (spring arm, locked rotation, -65 degrees)
 - [x] Bomb placement input
 - [x] GetCurrentGridPosition() (world pos -> grid coords)
-- [x] BombermanPlayerState (lives, score, upgrades struct, bomb count, blast radius)
-- [x] FPlayerUpgrades struct
+- [x] BombermanPlayerState (lives, upgrades struct)
+- [x] FBombermanPlayerUpgrades struct
+- [x] BombCount and BlastRadius derived from upgrades (GetBombCount(), GetBlastRadius())
+- [x] Health component (BombermanHealthComponent, reusable on enemies)
+- [x] Death handling (lose life, respawn or game over)
 
 ### Bomb
 - [x] ABomb actor class
 - [x] Bomb states: Placed -> Armed -> Detonating -> Explosion -> Cleanup
 - [x] Fuse timer
-- [ ] Explosion logic (cross-shaped, 4 directions, stops on hard/soft walls)
-- [ ] Soft block destruction on explosion
-- [ ] Chain reaction (bomb hit by explosion detonates immediately)
-- [ ] Snap placement to grid tile
+- [x] Explosion logic (cross-shaped, 4 directions, stops on hard/soft walls)
+- [x] Soft block destruction on explosion (calls DestroyActorOnTile)
+- [x] Chain reaction (bomb hit by explosion detonates immediately, double-trigger protected)
+- [x] Snap placement to grid tile
+- [x] Blast radius from PlayerState (FireUp upgrade)
+- [x] Bomb count limit from PlayerState (BombUp upgrade)
+- [x] Player/enemy damage on explosion (BoxOverlap on each blast tile)
 
 ### Stage
-- [ ] BombermanGameMode class
-- [ ] Basic stage loading
-- [ ] Hard wall placement (static per stage)
-- [ ] Player spawn (top-left)
-- [ ] Stage timer
-- [ ] Win condition (all enemies dead -> door spawns -> player enters)
-- [ ] Lose condition (player loses last life)
+- [x] BombermanGameMode class
+- [x] BombermanGameState class (StageState, StageTimeRemaining, CurrentStage, EnemiesRemaining)
+- [x] Player spawn at grid spawn position (top-left interior tile)
+- [x] Stage timer (200s countdown, ticks every second)
+- [ ] Win condition (all enemies dead -> door active -> player enters)
+- [ ] Lose condition hookup (game over screen)
+- [ ] Stage timer expire -> Enemy Rush (spawn 10 Pontants) - stub exists
+- [ ] Level reload on stage clear
 
 ### Enemies (2 basic ones, no AI yet)
 - [ ] AEnemyBase class
@@ -59,11 +68,11 @@ AI enhanced TODO
 ## Phase 2 - Content
 
 ### Stage Generation
-- [ ] Procedural soft block placement (skip player spawn zone ~2x2)
-- [ ] Door hidden under random soft block
+- [x] Procedural soft block placement (skip player spawn zone ~2x2)
+- [x] Door hidden under random soft block
+- [x] Flood-fill check (guarantee door is always reachable)
 - [ ] Upgrades hidden under random soft blocks
 - [ ] Enemy spawn positions (away from player)
-- [ ] Flood-fill check (guarantee door is always reachable)
 - [ ] Data Table setup (enemy types, upgrades, timer per stage)
 - [ ] Grid growth (every X stages, grid grows by 1 in each direction)
 
@@ -130,5 +139,5 @@ AI enhanced TODO
 ## Known Risks
 - Dynamic NavMesh performance with soft block destruction -> test early
 - Doria AI complexity -> don't leave to May
-- Procedural gen edge cases -> add flood-fill check early
+- Procedural gen edge cases -> flood-fill check is in, keep an eye on edge cases
 - Multiplayer refactor cost -> no global player singletons, always use PlayerState/GameState

@@ -4,6 +4,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Grid/BombermanGrid.h"
+#include "Components/BombermanHealthComponent.h"
 #include "EngineUtils.h"
 
 ABombermanBomb::ABombermanBomb()
@@ -40,7 +41,6 @@ void ABombermanBomb::Detonate()
 
 	// Clear timer - handles the case where we got chain-triggered before fuse expired
 	GetWorld()->GetTimerManager().ClearTimer(FuseTimerHandle);
-
 	Explode();
 }
 
@@ -54,6 +54,9 @@ void ABombermanBomb::Explode()
 
 	// Clear our tile first - prevents other explosion rays from trying to chain back into us
 	Grid->SetTileContent(BX, BY, ETileContent::Empty);
+
+	// Damage anything on the bomb's own tile
+	DamageActorsOnTile(BX, BY);
 
 	const TArray<FVector2D> Directions = {
 		FVector2D(1, 0), FVector2D(-1, 0),
@@ -76,7 +79,8 @@ void ABombermanBomb::Explode()
 			}
 			else if (Tile == ETileContent::SoftBlock)
 			{
-				Grid->SetTileContent(X, Y, ETileContent::Empty);
+				Grid->DestroyActorOnTile(X, Y);
+				DamageActorsOnTile(X, Y);
 				break;
 			}
 			else if (Tile == ETileContent::Bomb)
@@ -86,6 +90,11 @@ void ABombermanBomb::Explode()
 				TriggerChainReaction(X, Y);
 				break;
 			}
+			else
+			{
+				// Empty tile - damage anything standing here (player, enemy)
+				DamageActorsOnTile(X, Y);
+			}
 		}
 	}
 
@@ -93,10 +102,44 @@ void ABombermanBomb::Explode()
 	Destroy();
 }
 
-void ABombermanBomb::TriggerChainReaction(int32 X, int32 Y)
+void ABombermanBomb::DamageActorsOnTile(int32 X, int32 Y) const
 {
 	UE_LOG(LogTemp, Warning, TEXT("Looking for bomb actor at [%d, %d]"), X, Y);
+	if (!Grid) return;
 
+	FVector TileWorld = Grid->GetTileWorldPosition(X, Y);
+	float HalfTile = Grid->GetTileSize() * 0.5f;
+
+	// Overlap check - find all actors within this tile's bounds
+	TArray<AActor*> OverlappingActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
+		UEngineTypes::ConvertToObjectType(ECC_Pawn)
+	};
+
+	UKismetSystemLibrary::BoxOverlapActors(
+		GetWorld(),
+		TileWorld,
+		FVector(HalfTile * 0.9f), // slightly smaller than tile to avoid edge bleed
+		ObjectTypes,
+		nullptr,
+		TArray<AActor*>{ const_cast<ABombermanBomb*>(this) },
+		OverlappingActors
+	);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (!Actor) continue;
+
+		UBombermanHealthComponent* Health = Actor->FindComponentByClass<UBombermanHealthComponent>();
+		if (Health)
+		{
+			Health->TakeDamage(1.f);
+		}
+	}
+}
+
+void ABombermanBomb::TriggerChainReaction(int32 X, int32 Y)
+{
 	for (TActorIterator<ABombermanBomb> It(GetWorld()); It; ++It)
 	{
 		ABombermanBomb* OtherBomb = *It;

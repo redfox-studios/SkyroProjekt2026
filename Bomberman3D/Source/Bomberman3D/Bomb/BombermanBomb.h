@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "BombermanBomb.generated.h"
 
 // Placed -> Armed -> Detonating -> Explosion -> Cleanup
@@ -62,4 +63,5 @@ public:
 private:
 	void Explode();
 	void TriggerChainReaction(int32 X, int32 Y);
+	void DamageActorsOnTile(int32 X, int32 Y) const;
 };
