@@ -8,6 +8,7 @@
 #include "Player/BombermanPlayerState.h"
 #include "Enemies/EnemyBase.h"
 #include "Grid/BombermanGrid.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
@@ -116,7 +117,9 @@ void ABombermanGameMode::SpawnEnemies()
 			FMath::RoundToInt(Tile.X),
 			FMath::RoundToInt(Tile.Y)
 		);
-		WorldPos.Z += 50.f; // so enemies wont noclip to landscape
+
+		AEnemyBase* CDO = DefaultEnemyClass->GetDefaultObject<AEnemyBase>();
+		WorldPos.Z = CDO->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
 		// AActor* Enemy = GetWorld()->SpawnActor<AActor>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator);
 		// if (Enemy)
@@ -126,7 +129,7 @@ void ABombermanGameMode::SpawnEnemies()
 		// }
 
 		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		AEnemyBase* Enemy = GetWorld()->SpawnActor<AEnemyBase>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator, SpawnParams);
 		if (Enemy)
 		{

@@ -5,6 +5,7 @@
 #include "Core/BombermanGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 
 AEnemyBase::AEnemyBase()
 {
@@ -14,6 +15,9 @@ AEnemyBase::AEnemyBase()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f);
+	GetCapsuleComponent()->bHiddenInGame = false;
 }
 
 void AEnemyBase::BeginPlay()
@@ -25,6 +29,8 @@ void AEnemyBase::BeginPlay()
 	HealthComponent->OnDeath.AddDynamic(this, &AEnemyBase::OnDeath);
 
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+
+	SpawnDefaultController();
 }
 
 void AEnemyBase::OnDeath()
