@@ -9,6 +9,7 @@
 #include "Enemies/EnemyBase.h"
 #include "Grid/BombermanGrid.h"
 #include "Components/CapsuleComponent.h"
+#include "Core/BombermanGameInstance.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
@@ -40,6 +41,21 @@ void ABombermanGameMode::BeginPlay()
 void ABombermanGameMode::StartStage()
 {
 	if (!BombermanGameState) return;
+
+	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
+	{
+		BombermanGameState->CurrentStage = GI->CurrentStage;
+
+		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+		{
+			if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
+			{
+				PS->Lives = GI->Lives;
+				PS->Upgrades = GI->Upgrades;
+			}
+			break;
+		}
+	}
 
 	BombermanGameState->StageState = EStageState::InProgress;
 	BombermanGameState->StageTimeRemaining = StageTimerDuration;
@@ -185,7 +201,22 @@ void ABombermanGameMode::StageClear()
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
-	// UE_LOG(LogTemp, Log, TEXT("Stage clear! (TODO: level reload)"));
+	// Save to GameInstance before level reload
+	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
+	{
+		GI->CurrentStage = BombermanGameState->CurrentStage;
+
+		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+		{
+			if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
+			{
+				GI->Lives = PS->Lives;
+				GI->Upgrades = PS->Upgrades;
+			}
+			break;
+		}
+	}
+
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 
