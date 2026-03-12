@@ -185,7 +185,8 @@ void ABombermanGameMode::StageClear()
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
-	UE_LOG(LogTemp, Log, TEXT("Stage clear! (TODO: level reload)"));
+	// UE_LOG(LogTemp, Log, TEXT("Stage clear! (TODO: level reload)"));
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 
 void ABombermanGameMode::OnGameOver()
