@@ -16,6 +16,7 @@ ABombermanUpgrade::ABombermanUpgrade()
 	OverlapBox->SetupAttachment(RootComponent);
 	OverlapBox->SetBoxExtent(FVector(40.f));
 	OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
+	OverlapBox->bHiddenInGame = false;
 }
 
 void ABombermanUpgrade::BeginPlay()
