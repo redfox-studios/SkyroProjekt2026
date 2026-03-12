@@ -16,7 +16,8 @@ public class Bomberman3D : ModuleRules
             "Bomberman3D",
             "Bomberman3D/Grid",
             "Bomberman3D/Player",
-            "Bomberman3D/Bomb"
+            "Bomberman3D/Bomb",
+            "Bomberman3D/Core"
         });
 
         // Uncomment if you are using Slate UI
