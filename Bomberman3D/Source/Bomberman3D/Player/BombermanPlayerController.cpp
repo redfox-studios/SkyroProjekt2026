@@ -13,4 +13,10 @@ void ABombermanPlayerController::BeginPlay() {
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	if (HUDWidgetClass)
+	{
+		UUserWidget* HUD = CreateWidget<UUserWidget>(this, HUDWidgetClass);
+		if (HUD) HUD->AddToViewport();
+	}
 }
