@@ -132,6 +132,9 @@
 - [ ] Full bugfix pass
 - [ ] Local co-op/versus (if time allows)
 
+### Movement
+- [ ] "corner rounding" logic that nudges the enemy slightly when they're close to passing a corner.
+
 ---
 
 ## Known Risks
