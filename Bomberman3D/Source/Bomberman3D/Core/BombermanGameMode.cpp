@@ -6,6 +6,7 @@
 #include "Player/BombermanPlayerController.h"
 #include "Player/BombermanCharacter.h"
 #include "Player/BombermanPlayerState.h"
+#include "Enemies/EnemyBase.h"
 #include "Grid/BombermanGrid.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -41,19 +42,18 @@ void ABombermanGameMode::StartStage()
 
 	BombermanGameState->StageState = EStageState::InProgress;
 	BombermanGameState->StageTimeRemaining = StageTimerDuration;
-	BombermanGameState->EnemiesRemaining = 0; // TODO: set this when enemy spawning is implemented
+	BombermanGameState->EnemiesRemaining = 0;
 
-	// Spawn player at grid spawn position
-	if (Grid)
+	// Move player to spawn
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 	{
-		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
-		{
-			It->SetActorLocation(Grid->GetPlayerSpawnPosition());
-			break;
-		}
+		It->SetActorLocation(Grid->GetPlayerSpawnPosition());
+		break;
 	}
 
-	// Tick timer every second to update StageTimeRemaining
+	SpawnEnemies();
+
+	// Tick timer every second
 	GetWorld()->GetTimerManager().SetTimer(
 		StageTickHandle,
 		this,
@@ -62,7 +62,7 @@ void ABombermanGameMode::StartStage()
 		true
 	);
 
-	// Full stage timer - on expire spawn enemy rush
+	// Full stage timer
 	GetWorld()->GetTimerManager().SetTimer(
 		StageTimerHandle,
 		this,
@@ -71,7 +71,55 @@ void ABombermanGameMode::StartStage()
 		false
 	);
 
-	UE_LOG(LogTemp, Log, TEXT("Stage %d started"), BombermanGameState->CurrentStage);
+	UE_LOG(LogTemp, Log, TEXT("Stage %d started. Enemies: %d"), BombermanGameState->CurrentStage, BombermanGameState->EnemiesRemaining);
+}
+
+void ABombermanGameMode::SpawnEnemies()
+{
+	if (!DefaultEnemyClass || !Grid || !BombermanGameState) return;
+
+	// Collect valid spawn tiles - must be empty, not near player spawn (1,1)
+	TArray<FVector2D> ValidTiles;
+
+	for (int32 X = 1; X < Grid->GetGridHeight() - 1; X++)
+	{
+		for (int32 Y = 1; Y < Grid->GetGridWidth() - 1; Y++)
+		{
+			if (Grid->GetTileContent(X, Y) != ETileContent::Empty) continue;
+
+			// Keep enemies away from player spawn
+			if (FMath::Abs(X - 1) <= 3 && FMath::Abs(Y - 1) <= 3) continue;
+
+			ValidTiles.Add(FVector2D(X, Y));
+		}
+	}
+
+	// Shuffle
+	for (int32 i = ValidTiles.Num() - 1; i > 0; i--)
+	{
+		int32 j = FMath::RandRange(0, i);
+		ValidTiles.Swap(i, j);
+	}
+
+	int32 Spawned = 0;
+	for (const FVector2D& Tile : ValidTiles)
+	{
+		if (Spawned >= EnemyCount) break;
+
+		FVector WorldPos = Grid->GetTileWorldPosition(
+			FMath::RoundToInt(Tile.X),
+			FMath::RoundToInt(Tile.Y)
+		);
+
+		AActor* Enemy = GetWorld()->SpawnActor<AActor>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator);
+		if (Enemy)
+		{
+			Spawned++;
+			BombermanGameState->EnemiesRemaining++;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Spawned %d enemies"), Spawned);
 }
 
 void ABombermanGameMode::OnStageTimerTick()
@@ -96,8 +144,6 @@ void ABombermanGameMode::OnEnemyDied()
 
 	if (BombermanGameState->EnemiesRemaining <= 0)
 	{
-		// All enemies dead - door is now active
-		// Grid already handles door visibility via DestroyActorOnTile
 		UE_LOG(LogTemp, Log, TEXT("All enemies dead - find the door!"));
 	}
 }
@@ -105,7 +151,7 @@ void ABombermanGameMode::OnEnemyDied()
 void ABombermanGameMode::OnPlayerEnteredDoor()
 {
 	if (!BombermanGameState) return;
-	if (BombermanGameState->EnemiesRemaining > 0) return; // can't leave until all enemies dead
+	if (BombermanGameState->EnemiesRemaining > 0) return;
 
 	StageClear();
 }
@@ -120,8 +166,7 @@ void ABombermanGameMode::StageClear()
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
-	UE_LOG(LogTemp, Log, TEXT("Stage clear! Loading next stage... (TODO: level reload)"));
-	// TODO: reload level / load next stage
+	UE_LOG(LogTemp, Log, TEXT("Stage clear! (TODO: level reload)"));
 }
 
 void ABombermanGameMode::OnGameOver()
@@ -140,5 +185,4 @@ void ABombermanGameMode::OnGameOver()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Game over!"));
-	// TODO: show game over screen
 }

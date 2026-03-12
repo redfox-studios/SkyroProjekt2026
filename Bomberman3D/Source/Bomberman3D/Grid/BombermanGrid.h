@@ -92,6 +92,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetGridPositionFromWorld(FVector WorldLocation) const;
 
+	int32 GetGridWidth() const { return BaseGridWidth; }
+	int32 GetGridHeight() const { return BaseGridHeight; }
+
 	// --- actor spawning ---
 
 	UFUNCTION(BlueprintCallable)

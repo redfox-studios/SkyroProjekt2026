@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Enemies/EnemyBase.h"
 #include "BombermanGameMode.generated.h"
 
 class ABombermanGrid;
@@ -36,11 +37,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	int32 StartingLives = 3;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	TSubclassOf<AEnemyBase> DefaultEnemyClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	int32 EnemyCount = 3;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();
 	void OnStageTimerExpired();
 	void StageClear();
+	void SpawnEnemies();
 
 	FTimerHandle StageTimerHandle;
 	FTimerHandle StageTickHandle;
