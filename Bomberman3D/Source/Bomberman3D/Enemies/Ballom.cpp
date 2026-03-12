@@ -22,10 +22,10 @@ void ABallom::Tick(float DeltaTime)
 
 	// UE_LOG(LogTemp, Warning, TEXT("ticking"));
 
-	UE_LOG(LogTemp, Warning, TEXT("Dir: %s | Blocked: %d | GridPos: %s"),
-		*CurrentDirection.ToString(),
-		IsDirectionBlocked(CurrentDirection),
-		*Grid->GetGridPositionFromWorld(GetActorLocation()).ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("Dir: %s | Blocked: %d | GridPos: %s"),
+	//	*CurrentDirection.ToString(),
+	//	IsDirectionBlocked(CurrentDirection),
+	//	*Grid->GetGridPositionFromWorld(GetActorLocation()).ToString());
 
 	DirectionChangeTimer += DeltaTime;
 
