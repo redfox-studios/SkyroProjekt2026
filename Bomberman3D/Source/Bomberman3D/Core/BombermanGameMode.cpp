@@ -133,6 +133,12 @@ void ABombermanGameMode::OnGameOver()
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		It->DisableInput(nullptr);
+		break;
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("Game over!"));
 	// TODO: show game over screen
 }

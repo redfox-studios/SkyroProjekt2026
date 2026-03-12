@@ -28,7 +28,7 @@ void ABombermanGrid::Tick(float DeltaTime)
 	{
 		for (int32 Y = 0; Y < BaseGridWidth; Y++)
 		{
-			FVector Center = GetTileWorldPosition(X, Y) + FVector(0, 0, 50.f);
+			FVector Center = GetTileWorldPosition(X, Y)/* + FVector(0, 0, 50.f) */;
 			FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
 				Data[X][Y] == ETileContent::SoftBlock ? FColor::Green :
 				Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
@@ -223,12 +223,11 @@ TArray<FVector2D> ABombermanGrid::FloodFill(int32 StartX, int32 StartY) const
 	return Visited;
 }
 
-// credits to: https://github.com/kubgus
+// isinbounds credits to: https://github.com/kubgus
 bool ABombermanGrid::IsInBounds(int32 X, int32 Y) const
 {
 	return X >= 0 && X < BaseGridHeight && Y >= 0 && Y < BaseGridWidth;
 }
-// end credits
 
 bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const
 {
@@ -242,7 +241,7 @@ bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const
 
 FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const
 {
-	return GetActorLocation() + FVector(X * TileSize, Y * TileSize, 0.f);
+	return GetActorLocation() + FVector(X * TileSize, Y * TileSize, TileSize * 0.5f);
 }
 
 ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const
