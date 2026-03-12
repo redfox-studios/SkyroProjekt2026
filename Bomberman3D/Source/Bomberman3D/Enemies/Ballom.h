@@ -6,12 +6,23 @@
 #include "Enemies/EnemyBase.h"
 #include "Ballom.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class BOMBERMAN3D_API ABallom : public AEnemyBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	ABallom();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void UpdateMovement() override;
+
+private:
+	void PickNewDirection();
+	bool IsDirectionBlocked(FVector2D Dir) const;
+
+	FVector2D CurrentDirection = FVector2D::ZeroVector;
+	float DirectionChangeTimer = 0.f;
 };

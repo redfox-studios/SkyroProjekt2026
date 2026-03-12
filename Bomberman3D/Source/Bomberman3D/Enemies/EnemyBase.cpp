@@ -1,34 +1,39 @@
 // Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
-
 #include "Enemies/EnemyBase.h"
+#include "Grid/BombermanGrid.h"
+#include "Core/BombermanGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
-// Sets default values
 AEnemyBase::AEnemyBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	HealthComponent = CreateDefaultSubobject<UBombermanHealthComponent>(TEXT("HealthComponent"));
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = false;
 }
 
-// Called when the game starts or when spawned
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
+
+	HealthComponent->OnDeath.AddDynamic(this, &AEnemyBase::OnDeath);
+
+	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 }
 
-// Called every frame
-void AEnemyBase::Tick(float DeltaTime)
+void AEnemyBase::OnDeath()
 {
-	Super::Tick(DeltaTime);
+	// Notify GameMode
+	if (ABombermanGameMode* GM = Cast<ABombermanGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GM->OnEnemyDied();
+	}
 
+	Destroy();
 }
-
-// Called to bind functionality to input
-void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-

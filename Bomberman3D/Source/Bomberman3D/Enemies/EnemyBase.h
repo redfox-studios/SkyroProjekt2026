@@ -4,26 +4,37 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/BombermanHealthComponent.h"
 #include "EnemyBase.generated.h"
 
-UCLASS()
+class ABombermanGrid;
+
+UCLASS(Abstract)
 class BOMBERMAN3D_API AEnemyBase : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AEnemyBase();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// Override in subclasses to implement specific movement behavior
+	virtual void UpdateMovement() {}
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UBombermanHealthComponent* HealthComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float MoveSpeed = 150.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float DirectionChangeInterval = 0.5f;
+
+	ABombermanGrid* Grid = nullptr;
+
+private:
+	UFUNCTION()
+	void OnDeath();
 };
