@@ -27,6 +27,8 @@ ABombermanCharacter::ABombermanCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	HealthComponent = CreateDefaultSubobject<UBombermanHealthComponent>(TEXT("HealthComponent"));
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
 }
@@ -36,6 +38,8 @@ void ABombermanCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
+
+	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
 }
 
 void ABombermanCharacter::Tick(float DeltaTime)
@@ -98,6 +102,27 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 void ABombermanCharacter::OnBombDestroyed(AActor* DestroyedActor)
 {
 	ActiveBombCount = FMath::Max(0, ActiveBombCount - 1);
+}
+
+void ABombermanCharacter::OnDeath()
+{
+	ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>();
+	if (!PS) return;
+
+	PS->Lives--;
+
+	UE_LOG(LogTemp, Warning, TEXT("Player died. Lives remaining: %d"), PS->Lives);
+
+	if (PS->Lives <= 0)
+	{
+		// TODO: notify GameMode - game over
+		UE_LOG(LogTemp, Warning, TEXT("Game over!"));
+		return;
+	}
+
+	// Respawn - reset health and position
+	HealthComponent->ResetHealth();
+	SetActorLocation(Grid ? Grid->GetPlayerSpawnPosition() : FVector::ZeroVector);
 }
 
 FVector2D ABombermanCharacter::GetCurrentGridPosition() const

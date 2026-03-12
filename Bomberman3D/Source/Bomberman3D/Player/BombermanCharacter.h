@@ -13,6 +13,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "Bomb/BombermanBomb.h"
+#include "Components/BombermanHealthComponent.h"
 
 #include "BombermanCharacter.generated.h"
 
@@ -54,6 +55,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
 	TSubclassOf<ABombermanBomb> BombClass;
 
+	// --- health ---
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UBombermanHealthComponent* HealthComponent;
+
 	// --- grid ---
 
 	UPROPERTY(EditAnywhere, Category = "Grid")
@@ -71,4 +77,7 @@ private:
 
 	UFUNCTION()
 	void OnBombDestroyed(AActor* DestroyedActor);
+
+	UFUNCTION()
+	void OnDeath();
 };
