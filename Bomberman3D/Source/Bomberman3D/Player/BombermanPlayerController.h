@@ -9,6 +9,8 @@
 #include "InputAction.h"
 #include "InputActionValue.h"
 
+#include "Blueprint/UserWidget.h"
+
 #include "BombermanPlayerController.generated.h"
 
 /**
@@ -25,4 +27,7 @@ protected:
 public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* DefaultMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HUD")
+	TSubclassOf<UUserWidget> HUDWidgetClass;
 };

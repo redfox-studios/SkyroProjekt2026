@@ -92,6 +92,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetGridPositionFromWorld(FVector WorldLocation) const;
 
+	int32 GetGridWidth() const { return BaseGridWidth; }
+	int32 GetGridHeight() const { return BaseGridHeight; }
+
 	// --- actor spawning ---
 
 	UFUNCTION(BlueprintCallable)
@@ -102,6 +105,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AActor* GetActorOnTile(int32 X, int32 Y) const;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> BombUpClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> FireUpClass;
+
+	// 0.0 - 1.0, how many soft blocks hide an upgrade
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	float UpgradeDensity = 0.2f;
+
+	TArray<TArray<TSubclassOf<AActor>>> UpgradeMap;
 
 	// --- misc ---
 
@@ -119,6 +134,7 @@ private:
 	void PlaceHardWalls();
 	void GenerateSoftBlocks();
 	void PlaceDoor();
+	void PlaceUpgrades();
 
 	// Flood-fill from player spawn, returns all reachable empty tiles
 	TArray<FVector2D> FloodFill(int32 StartX, int32 StartY) const;

@@ -15,6 +15,8 @@ void ABombermanGrid::BeginPlay()
 	InitGrid();
 	PlaceHardWalls();
 	GenerateSoftBlocks();
+	GenerateSoftBlocks();
+	PlaceUpgrades();
 	PlaceDoor();
 }
 
@@ -56,6 +58,16 @@ void ABombermanGrid::InitGrid()
 		TArray<AActor*> ActorRow;
 		ActorRow.Init(nullptr, BaseGridWidth);
 		ActorMap.Add(ActorRow);
+	}
+
+	UpgradeMap.Empty();
+	UpgradeMap.Reserve(BaseGridHeight);
+
+	for (int32 i = 0; i < BaseGridHeight; i++)
+	{
+		TArray<TSubclassOf<AActor>> Row;
+		Row.Init(nullptr, BaseGridWidth);
+		UpgradeMap.Add(Row);
 	}
 }
 
@@ -104,6 +116,7 @@ void ABombermanGrid::GenerateSoftBlocks()
 			if (FMath::FRand() <= SoftBlockDensity)
 			{
 				Data[X][Y] = ETileContent::SoftBlock;
+				UE_LOG(LogTemp, Log, TEXT("SoftBlock at [%d,%d]"), X, Y);
 				SpawnActorOnTile(X, Y, SoftBlockClass);
 			}
 		}
@@ -320,10 +333,39 @@ void ABombermanGrid::DestroyActorOnTile(int32 X, int32 Y)
 	Actor->Destroy();
 	ActorMap[X][Y] = nullptr;
 	Data[X][Y] = ETileContent::Empty;
+
+	// spawn upgrade if hidden here
+	if (UpgradeMap[X][Y])
+	{
+		SpawnActorOnTile(X, Y, UpgradeMap[X][Y]);
+		UpgradeMap[X][Y] = nullptr;
+	}
 }
 
 AActor* ABombermanGrid::GetActorOnTile(int32 X, int32 Y) const
 {
 	if (!IsInBounds(X, Y)) return nullptr;
 	return ActorMap[X][Y];
+}
+
+void ABombermanGrid::PlaceUpgrades()
+{
+	for (int32 X = 1; X < BaseGridHeight - 1; X++)
+	{
+		for (int32 Y = 1; Y < BaseGridWidth - 1; Y++)
+		{
+			if (Data[X][Y] != ETileContent::SoftBlock) continue;
+			if (X == DoorTileX && Y == DoorTileY) continue; // don't overwrite door tile
+
+			if (FMath::FRand() <= UpgradeDensity)
+			{
+				TSubclassOf<AActor> UpgradeClass = FMath::RandBool() ? BombUpClass : FireUpClass;
+				if (UpgradeClass)
+				{
+					// Store it - will spawn when soft block is destroyed
+					UpgradeMap[X][Y] = UpgradeClass;
+				}
+			}
+		}
+	}
 }

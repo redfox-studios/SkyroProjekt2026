@@ -1,7 +1,5 @@
 ﻿# Bomberman3D - TODO
 
-AI enhanced TODO
-
 ## Phase 1 - Core Systems
 
 ### Grid
@@ -42,43 +40,46 @@ AI enhanced TODO
 - [x] Blast radius from PlayerState (FireUp upgrade)
 - [x] Bomb count limit from PlayerState (BombUp upgrade)
 - [x] Player/enemy damage on explosion (BoxOverlap on each blast tile)
+- [x] Bomb passthrough until player leaves tile
 
 ### Stage
 - [x] BombermanGameMode class
 - [x] BombermanGameState class (StageState, StageTimeRemaining, CurrentStage, EnemiesRemaining)
 - [x] Player spawn at grid spawn position (top-left interior tile)
 - [x] Stage timer (200s countdown, ticks every second)
-- [ ] Win condition (all enemies dead -> door active -> player enters)
-- [ ] Lose condition hookup (game over screen)
+- [x] Enemy spawning (procedural, away from player spawn, configurable count)
+- [x] Win condition (all enemies dead -> door active -> player enters door)
+- [x] Lose condition (game over screen with restart button)
+- [x] Level reload on stage clear
 - [ ] Stage timer expire -> Enemy Rush (spawn 10 Pontants) - stub exists
-- [ ] Level reload on stage clear
+- [ ] Score system
 
-### Enemies (2 basic ones, no AI yet)
-- [ ] AEnemyBase class
-- [ ] Ballom (random direction, change on wall hit)
+### Enemies
+- [x] AEnemyBase class (health component, death notifies GameMode, configurable speed)
+- [x] Ballom (random direction, changes on wall hit)
 - [ ] Onil (random + pursue if player nearby)
 
 ### HUD
-- [ ] Lives display
+- [x] Lives display
+- [x] Timer display
+- [x] Stage display
 - [ ] Score display
-- [ ] Timer display
 
 ---
 
 ## Phase 2 - Content
 
 ### Stage Generation
-- [x] Procedural soft block placement (skip player spawn zone ~2x2)
+- [x] Procedural soft block placement (skip player spawn zone)
 - [x] Door hidden under random soft block
 - [x] Flood-fill check (guarantee door is always reachable)
-- [ ] Upgrades hidden under random soft blocks
-- [ ] Enemy spawn positions (away from player)
+- [x] Upgrades hidden under random soft blocks (BombUp, FireUp)
 - [ ] Data Table setup (enemy types, upgrades, timer per stage)
 - [ ] Grid growth (every X stages, grid grows by 1 in each direction)
 
 ### Upgrades & Items
-- [ ] BombUp (max bombs +1)
-- [ ] FireUp (blast radius +1)
+- [x] BombUp (max bombs +1)
+- [x] FireUp (blast radius +1)
 - [ ] SpeedUp (movement speed +1)
 - [ ] RemoteControl
 - [ ] WallPass
@@ -87,12 +88,13 @@ AI enhanced TODO
 - [ ] Invincible
 
 ### Save System
-- [ ] UBombermanSaveGame class
+- [x] GameInstance persists stage, lives, upgrades across level loads
+- [ ] UBombermanSaveGame class (persist between game sessions)
 - [ ] Save on stage clear + game over
 - [ ] Load on game start / continue
 
 ### Stage Progression
-- [ ] Load next stage on clear
+- [x] Load next stage on clear (reloads current level for now)
 - [ ] Enemy Rush (10 Pontants on timer expire)
 - [ ] 50 total stages
 
@@ -100,6 +102,7 @@ AI enhanced TODO
 
 ## Phase 3 - Full AI
 
+- [ ] Onil (random + pursue if player nearby)
 - [ ] Dahl (alternates axis)
 - [ ] Minvo (random + pursue, can get stuck)
 - [ ] Ovape (mostly ignores player)
@@ -125,6 +128,7 @@ AI enhanced TODO
 - [ ] Main Menu (New Game, Continue, Settings, Credits, Quit)
 - [ ] Pause Menu (Resume, Restart Stage, Main Menu)
 - [ ] Game Over screen
+- [x] Game Over screen
 - [ ] Stage Clear screen
 - [ ] Loading Screen
 - [ ] Credits Screen
@@ -133,6 +137,9 @@ AI enhanced TODO
 ### Final
 - [ ] Full bugfix pass
 - [ ] Local co-op/versus (if time allows)
+
+### Movement
+- [ ] Corner rounding logic for enemies
 
 ---
 
