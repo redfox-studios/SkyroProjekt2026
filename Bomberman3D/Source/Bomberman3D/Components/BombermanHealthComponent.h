@@ -6,23 +6,43 @@
 #include "Components/ActorComponent.h"
 #include "BombermanHealthComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class BOMBERMAN3D_API UBombermanHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
+public:
 	UBombermanHealthComponent();
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+	float MaxHealth = 1.f;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	// called when health changes (for hud)
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnHealthChanged OnHealthChanged;
 
-		
+	// called when health hits 0
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnDeath OnDeath;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void TakeDamage(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void Heal(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	bool IsDead() const { return bIsDead; }
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	float GetCurrentHealth() const { return CurrentHealth; }
+
+	void ResetHealth();
+
+private:
+	float CurrentHealth = 1.f;
+	bool bIsDead = false;
 };

@@ -1,34 +1,37 @@
 // Copyright (c) 2026, Michal Flaška & RedFox Studios. All Rights Reserved.
 
-
 #include "Components/BombermanHealthComponent.h"
 
-// Sets default values for this component's properties
 UBombermanHealthComponent::UBombermanHealthComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
-void UBombermanHealthComponent::BeginPlay()
+void UBombermanHealthComponent::TakeDamage(float Amount)
 {
-	Super::BeginPlay();
+	if (bIsDead || Amount <= 0.f) return;
 
-	// ...
-	
+	CurrentHealth = FMath::Max(0.f, CurrentHealth - Amount);
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+
+	if (CurrentHealth <= 0.f)
+	{
+		bIsDead = true;
+		OnDeath.Broadcast();
+	}
 }
 
-
-// Called every frame
-void UBombermanHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UBombermanHealthComponent::Heal(float Amount)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (bIsDead || Amount <= 0.f) return;
 
-	// ...
+	CurrentHealth = FMath::Min(MaxHealth, CurrentHealth + Amount);
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
 }
 
+void UBombermanHealthComponent::ResetHealth()
+{
+	bIsDead = false;
+	CurrentHealth = MaxHealth;
+	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);
+}
