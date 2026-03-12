@@ -1,7 +1,5 @@
 ﻿# Bomberman3D - TODO
 
-AI enhanced TODO
-
 ## Phase 1 - Core Systems
 
 ### Grid
@@ -48,14 +46,15 @@ AI enhanced TODO
 - [x] BombermanGameState class (StageState, StageTimeRemaining, CurrentStage, EnemiesRemaining)
 - [x] Player spawn at grid spawn position (top-left interior tile)
 - [x] Stage timer (200s countdown, ticks every second)
-- [ ] Win condition (all enemies dead -> door active -> player enters)
-- [ ] Lose condition hookup (game over screen)
+- [x] Enemy spawning (procedural, away from player spawn, configurable count)
+- [ ] Win condition (all enemies dead -> door active -> player enters door)
+- [ ] Lose condition (game over screen)
 - [ ] Stage timer expire -> Enemy Rush (spawn 10 Pontants) - stub exists
 - [ ] Level reload on stage clear
 
-### Enemies (2 basic ones, no AI yet)
-- [ ] AEnemyBase class
-- [ ] Ballom (random direction, change on wall hit)
+### Enemies
+- [x] AEnemyBase class (health component, death notifies GameMode, configurable speed)
+- [x] Ballom (random direction, changes on wall hit)
 - [ ] Onil (random + pursue if player nearby)
 
 ### HUD
@@ -68,11 +67,10 @@ AI enhanced TODO
 ## Phase 2 - Content
 
 ### Stage Generation
-- [x] Procedural soft block placement (skip player spawn zone ~2x2)
+- [x] Procedural soft block placement (skip player spawn zone)
 - [x] Door hidden under random soft block
 - [x] Flood-fill check (guarantee door is always reachable)
 - [ ] Upgrades hidden under random soft blocks
-- [ ] Enemy spawn positions (away from player)
 - [ ] Data Table setup (enemy types, upgrades, timer per stage)
 - [ ] Grid growth (every X stages, grid grows by 1 in each direction)
 
