@@ -9,6 +9,7 @@
 #include "Grid/BombermanGrid.h"
 #include "Bomb/BombermanBomb.h"
 #include "Player/BombermanPlayerState.h"
+#include "Core/BombermanGameMode.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -115,12 +116,14 @@ void ABombermanCharacter::OnDeath()
 
 	if (PS->Lives <= 0)
 	{
-		// TODO: notify GameMode - game over
-		UE_LOG(LogTemp, Warning, TEXT("Game over!"));
+		if (ABombermanGameMode* GM = Cast<ABombermanGameMode>(GetWorld()->GetAuthGameMode()))
+		{
+			GM->OnGameOver();
+		}
 		return;
 	}
 
-	// Respawn - reset health and position
+	// Still has lives - reset and respawn
 	HealthComponent->ResetHealth();
 	SetActorLocation(Grid ? Grid->GetPlayerSpawnPosition() : FVector::ZeroVector);
 }
