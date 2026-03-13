@@ -31,7 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void Tick(float DeltaTime) override;
+	// virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// --- input actions ---
@@ -67,6 +67,14 @@ public:
 
 	UFUNCTION()
 	FVector2D GetCurrentGridPosition() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float BaseSpeed = 400.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float SpeedUpIncrement = 100.f; // per SpeedUp level
+
+	float GetSpeedUpIncrement() const { return SpeedUpIncrement; }
 
 private:
 	void Move(const FInputActionValue& Value);

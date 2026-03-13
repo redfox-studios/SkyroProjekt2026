@@ -10,7 +10,8 @@ UENUM(BlueprintType)
 enum class EUpgradeType : uint8
 {
 	BombUp  UMETA(DisplayName = "Bomb Up"),
-	FireUp  UMETA(DisplayName = "Fire Up")
+	FireUp  UMETA(DisplayName = "Fire Up"),
+	SpeedUp UMETA(DisplayName = "Speed Up")
 };
 
 UCLASS()

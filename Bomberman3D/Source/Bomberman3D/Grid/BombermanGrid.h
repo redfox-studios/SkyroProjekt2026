@@ -94,6 +94,7 @@ public:
 
 	int32 GetGridWidth() const { return BaseGridWidth; }
 	int32 GetGridHeight() const { return BaseGridHeight; }
+	int32 GetPlayerSafeZone() const { return PlayerSafeZone; }
 
 	// --- actor spawning ---
 
@@ -111,6 +112,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> FireUpClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> SpeedUpClass;
 
 	// 0.0 - 1.0, how many soft blocks hide an upgrade
 	UPROPERTY(EditAnywhere, Category = "Grid Config")

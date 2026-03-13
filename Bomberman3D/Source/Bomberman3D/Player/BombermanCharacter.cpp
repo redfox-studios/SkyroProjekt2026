@@ -39,13 +39,9 @@ void ABombermanCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
-
 	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
-}
 
-void ABombermanCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
 }
 
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

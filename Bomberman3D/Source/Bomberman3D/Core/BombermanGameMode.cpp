@@ -2,15 +2,20 @@
 
 #include "Core/BombermanGameMode.h"
 #include "Core/BombermanGameState.h"
+#include "Core/BombermanGameInstance.h"
 
 #include "Player/BombermanPlayerController.h"
 #include "Player/BombermanCharacter.h"
 #include "Player/BombermanPlayerState.h"
-#include "Enemies/EnemyBase.h"
-#include "Grid/BombermanGrid.h"
-#include "Components/CapsuleComponent.h"
-#include "Core/BombermanGameInstance.h"
 
+#include "Enemies/EnemyBase.h"
+
+#include "Grid/BombermanGrid.h"
+
+#include "Components/CapsuleComponent.h"
+
+// --- engine ---
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 
@@ -45,6 +50,7 @@ void ABombermanGameMode::StartStage()
 	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 	{
 		BombermanGameState->CurrentStage = GI->CurrentStage;
+		// GI->CurrentStage++;
 
 		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 		{
@@ -52,6 +58,10 @@ void ABombermanGameMode::StartStage()
 			{
 				PS->Lives = GI->Lives;
 				PS->Upgrades = GI->Upgrades;
+				PS->SetScore(GI->Score);
+
+				float Speed = It->BaseSpeed + (PS->Upgrades.SpeedUp * It->GetSpeedUpIncrement());
+				It->GetCharacterMovement()->MaxWalkSpeed = Speed;
 			}
 			break;
 		}
@@ -107,7 +117,8 @@ void ABombermanGameMode::SpawnEnemies()
 			if (Grid->GetTileContent(X, Y) != ETileContent::Empty) continue;
 
 			// Keep enemies away from player spawn
-			if (FMath::Abs(X - 1) <= 3 && FMath::Abs(Y - 1) <= 3) continue;
+			int32 SafeZone = Grid->GetPlayerSafeZone();
+			if (FMath::Abs(X - 1) <= SafeZone && FMath::Abs(Y - 1) <= SafeZone) continue;
 
 			ValidTiles.Add(FVector2D(X, Y));
 		}
@@ -165,14 +176,41 @@ void ABombermanGameMode::OnStageTimerTick()
 
 void ABombermanGameMode::OnStageTimerExpired()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stage timer expired - enemy rush! (TODO: spawn Pontants)"));
-	// TODO: spawn 10 Pontants
+	if (!Grid || !PontantClass || !BombermanGameState) return;
+
+	for (int32 i = 0; i < 10; i++)
+	{
+		// pick a random empty tile
+		TArray<FVector2D> ValidTiles;
+		for (int32 X = 1; X < Grid->GetGridHeight() - 1; X++)
+		{
+			for (int32 Y = 1; Y < Grid->GetGridWidth() - 1; Y++)
+			{
+				if (Grid->GetTileContent(X, Y) == ETileContent::Empty)
+					ValidTiles.Add(FVector2D(X, Y));
+			}
+		}
+
+		if (ValidTiles.IsEmpty()) break;
+
+		FVector2D Tile = ValidTiles[FMath::RandRange(0, ValidTiles.Num() - 1)];
+		FVector WorldPos = Grid->GetTileWorldPosition(FMath::RoundToInt(Tile.X), FMath::RoundToInt(Tile.Y));
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		AEnemyBase* Pontant = GetWorld()->SpawnActor<AEnemyBase>(PontantClass, WorldPos, FRotator::ZeroRotator, SpawnParams);
+		if (Pontant)
+		{
+			BombermanGameState->EnemiesRemaining++;
+		}
+	}
 }
 
 void ABombermanGameMode::OnEnemyDied()
 {
 	if (!BombermanGameState) return;
 
+	AddScore(100);
 	BombermanGameState->EnemiesRemaining = FMath::Max(0, BombermanGameState->EnemiesRemaining - 1);
 
 	UE_LOG(LogTemp, Log, TEXT("Enemy died. Remaining: %d"), BombermanGameState->EnemiesRemaining);
@@ -196,27 +234,64 @@ void ABombermanGameMode::StageClear()
 	if (!BombermanGameState) return;
 
 	BombermanGameState->StageState = EStageState::StageClear;
-	BombermanGameState->CurrentStage++;
 
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
-	// Save to GameInstance before level reload
-	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 	{
-		GI->CurrentStage = BombermanGameState->CurrentStage;
+		It->DisableInput(nullptr);
 
-		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
 		{
-			if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
+			PS->SetScore(PS->GetScore() + FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
+
+			if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 			{
+				GI->CurrentStage = BombermanGameState->CurrentStage + 1;
 				GI->Lives = PS->Lives;
 				GI->Upgrades = PS->Upgrades;
+				GI->Score = PS->GetScore();
 			}
-			break;
+		}
+		break;
+	}
+
+	if (StageClearWidgetClass)
+	{
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (PC)
+		{
+			UUserWidget* Widget = CreateWidget<UUserWidget>(PC, StageClearWidgetClass);
+			if (Widget) Widget->AddToViewport();
 		}
 	}
 
+	FTimerHandle StageClearDelay;
+	GetWorld()->GetTimerManager().SetTimer(
+		StageClearDelay,
+		this,
+		&ABombermanGameMode::LoadNextStage,
+		3.f,
+		false
+	);
+}
+
+void ABombermanGameMode::AddScore(int32 Points)
+{
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
+		{
+			PS->SetScore((float)(PS->GetScore() + Points));
+			// setscore takes a float not int32 so i had to cast it
+		}
+		break;
+	}
+}
+
+void ABombermanGameMode::LoadNextStage()
+{
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 
@@ -228,6 +303,12 @@ void ABombermanGameMode::OnGameOver()
 
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
+
+	// Reset GameInstance so next run starts fresh
+	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
+	{
+		GI->ResetToDefaults();
+	}
 
 	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 	{
