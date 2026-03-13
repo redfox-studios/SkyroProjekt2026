@@ -46,12 +46,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> GameOverWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> StageClearWidgetClass;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();
 	void OnStageTimerExpired();
 	void StageClear();
 	void SpawnEnemies();
+	void LoadNextStage();
 
 	FTimerHandle StageTimerHandle;
 	FTimerHandle StageTickHandle;

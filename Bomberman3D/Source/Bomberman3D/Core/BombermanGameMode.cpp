@@ -199,9 +199,18 @@ void ABombermanGameMode::StageClear()
 
 	BombermanGameState->StageState = EStageState::StageClear;
 
+	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
+
+	// disable player input during stage clear
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		It->DisableInput(nullptr);
+		break;
+	}
+
 	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 	{
-		// Save NEXT stage number (current + 1)
 		GI->CurrentStage = BombermanGameState->CurrentStage + 1;
 
 		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
@@ -215,9 +224,29 @@ void ABombermanGameMode::StageClear()
 		}
 	}
 
-	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
-	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
+	if (StageClearWidgetClass)
+	{
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (PC)
+		{
+			UUserWidget* Widget = CreateWidget<UUserWidget>(PC, StageClearWidgetClass);
+			if (Widget) Widget->AddToViewport();
+		}
+	}
 
+	// short delay so the player can see the screen before reload
+	FTimerHandle StageClearDelay;
+	GetWorld()->GetTimerManager().SetTimer(
+		StageClearDelay,
+		this,
+		&ABombermanGameMode::LoadNextStage,
+		3.f,
+		false
+	);
+}
+
+void ABombermanGameMode::LoadNextStage()
+{
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 
