@@ -45,6 +45,7 @@ void ABombermanGameMode::StartStage()
 	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 	{
 		BombermanGameState->CurrentStage = GI->CurrentStage;
+		// GI->CurrentStage++;
 
 		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 		{
@@ -197,15 +198,11 @@ void ABombermanGameMode::StageClear()
 	if (!BombermanGameState) return;
 
 	BombermanGameState->StageState = EStageState::StageClear;
-	BombermanGameState->CurrentStage++;
 
-	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
-	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
-
-	// Save to GameInstance before level reload
 	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 	{
-		GI->CurrentStage = BombermanGameState->CurrentStage;
+		// Save NEXT stage number (current + 1)
+		GI->CurrentStage = BombermanGameState->CurrentStage + 1;
 
 		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 		{
@@ -217,6 +214,9 @@ void ABombermanGameMode::StageClear()
 			break;
 		}
 	}
+
+	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
