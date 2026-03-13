@@ -53,6 +53,7 @@ void ABombermanGameMode::StartStage()
 			{
 				PS->Lives = GI->Lives;
 				PS->Upgrades = GI->Upgrades;
+				PS->SetScore(GI->Score);
 			}
 			break;
 		}
@@ -175,6 +176,7 @@ void ABombermanGameMode::OnEnemyDied()
 {
 	if (!BombermanGameState) return;
 
+	AddScore(100);
 	BombermanGameState->EnemiesRemaining = FMath::Max(0, BombermanGameState->EnemiesRemaining - 1);
 
 	UE_LOG(LogTemp, Log, TEXT("Enemy died. Remaining: %d"), BombermanGameState->EnemiesRemaining);
@@ -202,26 +204,23 @@ void ABombermanGameMode::StageClear()
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
-	// disable player input during stage clear
 	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 	{
 		It->DisableInput(nullptr);
-		break;
-	}
 
-	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
-	{
-		GI->CurrentStage = BombermanGameState->CurrentStage + 1;
-
-		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
 		{
-			if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
+			PS->SetScore(PS->GetScore() + FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
+
+			if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 			{
+				GI->CurrentStage = BombermanGameState->CurrentStage + 1;
 				GI->Lives = PS->Lives;
 				GI->Upgrades = PS->Upgrades;
+				GI->Score = PS->GetScore();
 			}
-			break;
 		}
+		break;
 	}
 
 	if (StageClearWidgetClass)
@@ -234,7 +233,6 @@ void ABombermanGameMode::StageClear()
 		}
 	}
 
-	// short delay so the player can see the screen before reload
 	FTimerHandle StageClearDelay;
 	GetWorld()->GetTimerManager().SetTimer(
 		StageClearDelay,
@@ -243,6 +241,19 @@ void ABombermanGameMode::StageClear()
 		3.f,
 		false
 	);
+}
+
+void ABombermanGameMode::AddScore(int32 Points)
+{
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
+		{
+			PS->SetScore((float)(PS->GetScore() + Points));
+			// setscore takes a float not int32 so i had to cast it
+		}
+		break;
+	}
 }
 
 void ABombermanGameMode::LoadNextStage()

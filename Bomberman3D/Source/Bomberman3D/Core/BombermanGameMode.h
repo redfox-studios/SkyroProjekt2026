@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> StageClearWidgetClass;
 
+	UFUNCTION(BlueprintCallable)
+	void AddScore(int32 Points);
+
 private:
 	void StartStage();
 	void OnStageTimerTick();

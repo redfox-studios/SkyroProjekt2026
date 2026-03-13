@@ -2,6 +2,7 @@
 
 #include "Grid/BombermanGrid.h"
 #include "Engine/World.h"
+#include "Core/BombermanGameMode.h"
 
 ABombermanGrid::ABombermanGrid()
 {
@@ -333,6 +334,11 @@ void ABombermanGrid::DestroyActorOnTile(int32 X, int32 Y)
 	Actor->Destroy();
 	ActorMap[X][Y] = nullptr;
 	Data[X][Y] = ETileContent::Empty;
+
+	if (ABombermanGameMode* GM = Cast<ABombermanGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GM->AddScore(10);
+	}
 
 	// spawn upgrade if hidden here
 	if (UpgradeMap[X][Y])
