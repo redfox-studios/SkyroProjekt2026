@@ -51,19 +51,20 @@
 - [x] Win condition (all enemies dead -> door active -> player enters door)
 - [x] Lose condition (game over screen with restart button)
 - [x] Level reload on stage clear
-- [ ] Stage timer expire -> Enemy Rush (spawn 10 Pontants) - stub exists
-- [ ] Score system
+- [x] Stage timer expire -> Enemy Rush (spawn 10 Pontants) - stub exists
+- [x] Score system
 
 ### Enemies
 - [x] AEnemyBase class (health component, death notifies GameMode, configurable speed)
 - [x] Ballom (random direction, changes on wall hit)
-- [ ] Onil (random + pursue if player nearby)
+- [x] Onil (random + pursue if player nearby)
+- [x] Potant (always chase, fastest)
 
 ### HUD
 - [x] Lives display
 - [x] Timer display
 - [x] Stage display
-- [ ] Score display
+- [x] Score display
 
 ---
 
@@ -89,13 +90,13 @@
 
 ### Save System
 - [x] GameInstance persists stage, lives, upgrades across level loads
-- [ ] UBombermanSaveGame class (persist between game sessions)
-- [ ] Save on stage clear + game over
-- [ ] Load on game start / continue
+- [x] UBombermanSaveGame class (persist between game sessions)
+- [x] Save on stage clear + game over
+- [x] Load on game start / continue
 
 ### Stage Progression
 - [x] Load next stage on clear (reloads current level for now)
-- [ ] Enemy Rush (10 Pontants on timer expire)
+- [x] Enemy Rush (10 Pontants on timer expire)
 - [ ] 50 total stages
 
 ---
@@ -127,9 +128,8 @@
 ### UI
 - [ ] Main Menu (New Game, Continue, Settings, Credits, Quit)
 - [ ] Pause Menu (Resume, Restart Stage, Main Menu)
-- [ ] Game Over screen
 - [x] Game Over screen
-- [ ] Stage Clear screen
+- [x] Stage Clear screen
 - [ ] Loading Screen
 - [ ] Credits Screen
 - [ ] Settings (keybind remapping via Enhanced Input)
