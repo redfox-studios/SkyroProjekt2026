@@ -252,6 +252,7 @@ void ABombermanGameMode::StageClear()
 				GI->Lives = PS->Lives;
 				GI->Upgrades = PS->Upgrades;
 				GI->Score = PS->GetScore();
+				GI->SaveGame();
 			}
 		}
 		break;
@@ -308,6 +309,7 @@ void ABombermanGameMode::OnGameOver()
 	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 	{
 		GI->ResetToDefaults();
+		GI->SaveGame();
 	}
 
 	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)

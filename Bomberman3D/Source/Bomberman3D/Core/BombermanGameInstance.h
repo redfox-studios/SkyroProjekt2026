@@ -31,4 +31,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Game Instance")
 	int32 Score = 0;
 
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	void LoadGame();
+
+	virtual void Init() override; // REMOVE THIS IN BEFORE BUILD, THIS IS HERE ONLY TO TEST SAVEGAME IN EDITOR
 };
