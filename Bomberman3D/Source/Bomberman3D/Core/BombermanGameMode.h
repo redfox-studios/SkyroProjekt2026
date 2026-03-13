@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddScore(int32 Points);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	TSubclassOf<AEnemyBase> PontantClass;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();

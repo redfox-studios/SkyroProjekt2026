@@ -168,8 +168,34 @@ void ABombermanGameMode::OnStageTimerTick()
 
 void ABombermanGameMode::OnStageTimerExpired()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Stage timer expired - enemy rush! (TODO: spawn Pontants)"));
-	// TODO: spawn 10 Pontants
+	if (!Grid || !PontantClass || !BombermanGameState) return;
+
+	for (int32 i = 0; i < 10; i++)
+	{
+		// pick a random empty tile
+		TArray<FVector2D> ValidTiles;
+		for (int32 X = 1; X < Grid->GetGridHeight() - 1; X++)
+		{
+			for (int32 Y = 1; Y < Grid->GetGridWidth() - 1; Y++)
+			{
+				if (Grid->GetTileContent(X, Y) == ETileContent::Empty)
+					ValidTiles.Add(FVector2D(X, Y));
+			}
+		}
+
+		if (ValidTiles.IsEmpty()) break;
+
+		FVector2D Tile = ValidTiles[FMath::RandRange(0, ValidTiles.Num() - 1)];
+		FVector WorldPos = Grid->GetTileWorldPosition(FMath::RoundToInt(Tile.X), FMath::RoundToInt(Tile.Y));
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		AEnemyBase* Pontant = GetWorld()->SpawnActor<AEnemyBase>(PontantClass, WorldPos, FRotator::ZeroRotator, SpawnParams);
+		if (Pontant)
+		{
+			BombermanGameState->EnemiesRemaining++;
+		}
+	}
 }
 
 void ABombermanGameMode::OnEnemyDied()
