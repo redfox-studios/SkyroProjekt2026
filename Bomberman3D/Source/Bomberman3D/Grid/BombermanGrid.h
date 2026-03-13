@@ -113,6 +113,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> FireUpClass;
 
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> SpeedUpClass;
+
 	// 0.0 - 1.0, how many soft blocks hide an upgrade
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float UpgradeDensity = 0.2f;

@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "Player/BombermanCharacter.h"
 #include "Player/BombermanPlayerState.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ABombermanUpgrade::ABombermanUpgrade()
 {
@@ -42,6 +43,10 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 		break;
 	case EUpgradeType::FireUp:
 		PS->Upgrades.FireUp = FMath::Min(PS->Upgrades.FireUp + 1, 10);
+		break;
+	case EUpgradeType::SpeedUp:
+		PS->Upgrades.SpeedUp = FMath::Min(PS->Upgrades.SpeedUp + 1, 3);
+		Player->GetCharacterMovement()->MaxWalkSpeed += Player->GetSpeedUpIncrement();
 		break;
 	}
 

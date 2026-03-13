@@ -365,7 +365,12 @@ void ABombermanGrid::PlaceUpgrades()
 
 			if (FMath::FRand() <= UpgradeDensity)
 			{
-				TSubclassOf<AActor> UpgradeClass = FMath::RandBool() ? BombUpClass : FireUpClass;
+				TSubclassOf<AActor> UpgradeClass;
+				int32 Roll = FMath::RandRange(0, 2);
+				if (Roll == 0) UpgradeClass = BombUpClass;
+				else if (Roll == 1) UpgradeClass = FireUpClass;
+				else UpgradeClass = SpeedUpClass;
+
 				if (UpgradeClass)
 				{
 					// Store it - will spawn when soft block is destroyed
