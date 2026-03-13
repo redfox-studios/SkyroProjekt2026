@@ -57,8 +57,6 @@
 ### Enemies
 - [x] AEnemyBase class (health component, death notifies GameMode, configurable speed)
 - [x] Ballom (random direction, changes on wall hit)
-- [x] Onil (random + pursue if player nearby)
-- [x] Potant (always chase, fastest)
 
 ### HUD
 - [x] Lives display
@@ -81,7 +79,7 @@
 ### Upgrades & Items
 - [x] BombUp (max bombs +1)
 - [x] FireUp (blast radius +1)
-- [ ] SpeedUp (movement speed +1)
+- [x] SpeedUp (movement speed +1)
 - [ ] RemoteControl
 - [ ] WallPass
 - [ ] BombPass
@@ -103,12 +101,12 @@
 
 ## Phase 3 - Full AI
 
-- [ ] Onil (random + pursue if player nearby)
+- [x] Onil (random + pursue if player nearby)
 - [ ] Dahl (alternates axis)
 - [ ] Minvo (random + pursue, can get stuck)
 - [ ] Ovape (mostly ignores player)
 - [ ] Pass (aggressive chase)
-- [ ] Pontant (always chase, fastest)
+- [x] Pontant (always chase, fastest)
 - [ ] Doria (chase + bomb avoidance via Behavior Tree) <- hardest, start early
 - [ ] NavMesh setup for pathfinding enemies
 - [ ] Separate NavMesh config for soft-block-passthrough enemies
@@ -126,8 +124,8 @@
 ## Phase 4 - Polish
 
 ### UI
-- [ ] Main Menu (New Game, Continue, Settings, Credits, Quit)
-- [ ] Pause Menu (Resume, Restart Stage, Main Menu)
+- [x] Main Menu (New Game, Continue, Settings, Credits, Quit)
+- [x] Pause Menu (Resume, Restart Stage, Main Menu)
 - [x] Game Over screen
 - [x] Stage Clear screen
 - [ ] Loading Screen
