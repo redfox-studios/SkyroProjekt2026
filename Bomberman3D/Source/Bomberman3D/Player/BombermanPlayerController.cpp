@@ -19,4 +19,9 @@ void ABombermanPlayerController::BeginPlay() {
 		UUserWidget* HUD = CreateWidget<UUserWidget>(this, HUDWidgetClass);
 		if (HUD) HUD->AddToViewport();
 	}
+
+	if (PauseAction)
+	{
+		PauseAction->bTriggerWhenPaused = true;
+	}
 }
