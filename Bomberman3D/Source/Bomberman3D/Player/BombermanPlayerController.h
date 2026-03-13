@@ -28,6 +28,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* DefaultMappingContext;
 
+	// known UE issue -> Enhanced Input doesnt fire when the game is paused by default. so here am i, fixing it in C++
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* PauseAction;
+
 	UPROPERTY(EditDefaultsOnly, Category = "HUD")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 };
