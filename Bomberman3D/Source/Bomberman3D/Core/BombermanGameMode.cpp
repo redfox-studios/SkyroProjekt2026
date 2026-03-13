@@ -2,15 +2,20 @@
 
 #include "Core/BombermanGameMode.h"
 #include "Core/BombermanGameState.h"
+#include "Core/BombermanGameInstance.h"
 
 #include "Player/BombermanPlayerController.h"
 #include "Player/BombermanCharacter.h"
 #include "Player/BombermanPlayerState.h"
-#include "Enemies/EnemyBase.h"
-#include "Grid/BombermanGrid.h"
-#include "Components/CapsuleComponent.h"
-#include "Core/BombermanGameInstance.h"
 
+#include "Enemies/EnemyBase.h"
+
+#include "Grid/BombermanGrid.h"
+
+#include "Components/CapsuleComponent.h"
+
+// --- engine ---
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 
@@ -54,6 +59,9 @@ void ABombermanGameMode::StartStage()
 				PS->Lives = GI->Lives;
 				PS->Upgrades = GI->Upgrades;
 				PS->SetScore(GI->Score);
+
+				float Speed = It->BaseSpeed + (PS->Upgrades.SpeedUp * It->GetSpeedUpIncrement());
+				It->GetCharacterMovement()->MaxWalkSpeed = Speed;
 			}
 			break;
 		}

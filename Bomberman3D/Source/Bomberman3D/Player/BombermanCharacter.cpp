@@ -41,12 +41,7 @@ void ABombermanCharacter::BeginPlay()
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
 	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
 
-	// apply speed upgrade
-	if (ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>())
-	{
-		float Speed = BaseSpeed + (PS->Upgrades.SpeedUp * SpeedUpIncrement);
-		GetCharacterMovement()->MaxWalkSpeed = Speed;
-	}
+	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
 }
 
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
