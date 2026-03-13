@@ -34,6 +34,9 @@ void UBombermanGameInstance::LoadGame()
     Lives = Save->Lives;
     Score = Save->Score;
     Upgrades = Save->Upgrades;
+
+    UE_LOG(LogTemp, Warning, TEXT("Loaded: Stage=%d Lives=%d Score=%d SpeedUp=%d BombUp=%d FireUp=%d"),
+        CurrentStage, Lives, Score, Upgrades.SpeedUp, Upgrades.BombUp, Upgrades.FireUp);
 }
 
 void UBombermanGameInstance::ResetToDefaults()
