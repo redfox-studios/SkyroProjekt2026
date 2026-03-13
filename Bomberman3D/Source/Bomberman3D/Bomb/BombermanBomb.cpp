@@ -121,7 +121,7 @@ void ABombermanBomb::Explode()
 	Destroy();
 }
 
-void ABombermanBomb::DamageActorsOnTile(int32 X, int32 Y) const
+void ABombermanBomb::DamageActorsOnTile(int32 X, int32 Y)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Looking for bomb actor at [%d, %d]"), X, Y);
 	if (!Grid) return;
@@ -141,7 +141,7 @@ void ABombermanBomb::DamageActorsOnTile(int32 X, int32 Y) const
 		FVector(HalfTile * 0.9f), // slightly smaller than tile to avoid edge bleed
 		ObjectTypes,
 		nullptr,
-		TArray<AActor*>{ const_cast<ABombermanBomb*>(this) },
+		TArray<AActor*>{ this },
 		OverlappingActors
 	);
 

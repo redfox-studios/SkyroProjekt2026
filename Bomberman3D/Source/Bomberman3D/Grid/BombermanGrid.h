@@ -94,6 +94,7 @@ public:
 
 	int32 GetGridWidth() const { return BaseGridWidth; }
 	int32 GetGridHeight() const { return BaseGridHeight; }
+	int32 GetPlayerSafeZone() const { return PlayerSafeZone; }
 
 	// --- actor spawning ---
 

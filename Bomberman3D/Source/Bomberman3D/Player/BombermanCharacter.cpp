@@ -43,11 +43,6 @@ void ABombermanCharacter::BeginPlay()
 	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
 }
 
-void ABombermanCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

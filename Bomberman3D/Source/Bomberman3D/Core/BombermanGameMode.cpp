@@ -107,7 +107,8 @@ void ABombermanGameMode::SpawnEnemies()
 			if (Grid->GetTileContent(X, Y) != ETileContent::Empty) continue;
 
 			// Keep enemies away from player spawn
-			if (FMath::Abs(X - 1) <= 3 && FMath::Abs(Y - 1) <= 3) continue;
+			int32 SafeZone = Grid->GetPlayerSafeZone();
+			if (FMath::Abs(X - 1) <= SafeZone && FMath::Abs(Y - 1) <= SafeZone) continue;
 
 			ValidTiles.Add(FVector2D(X, Y));
 		}

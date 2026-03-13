@@ -15,9 +15,8 @@ void ABombermanGrid::BeginPlay()
 	InitGrid();
 	PlaceHardWalls();
 	GenerateSoftBlocks();
-	GenerateSoftBlocks();
-	PlaceUpgrades();
 	PlaceDoor();
+	PlaceUpgrades();
 }
 
 void ABombermanGrid::Tick(float DeltaTime)
@@ -199,22 +198,23 @@ bool ABombermanGrid::IsDoorReachable(int32 DoorX, int32 DoorY) const
 TArray<FVector2D> ABombermanGrid::FloodFill(int32 StartX, int32 StartY) const
 {
 	TArray<FVector2D> Visited;
-	TArray<FVector2D> Queue;
+	TSet<FVector2D> VisitedSet;
+	TQueue<FVector2D> Queue;
 
-	auto Key = [&](int32 X, int32 Y) { return FVector2D(X, Y); };
+	FVector2D Start(StartX, StartY);
+	Queue.Enqueue(Start);
+	VisitedSet.Add(Start);
 
-	Queue.Add(Key(StartX, StartY));
-	Visited.Add(Key(StartX, StartY));
-
-	const TArray<FVector2D> Dirs = {
+	const FVector2D Dirs[] = {
 		FVector2D(1, 0), FVector2D(-1, 0),
 		FVector2D(0, 1), FVector2D(0, -1)
 	};
 
-	while (Queue.Num() > 0)
+	while (!Queue.IsEmpty())
 	{
-		FVector2D Current = Queue[0];
-		Queue.RemoveAt(0);
+		FVector2D Current;
+		Queue.Dequeue(Current);
+		Visited.Add(Current);
 
 		for (const FVector2D& Dir : Dirs)
 		{
@@ -223,13 +223,13 @@ TArray<FVector2D> ABombermanGrid::FloodFill(int32 StartX, int32 StartY) const
 
 			if (!IsInBounds(NX, NY)) continue;
 			if (Data[NX][NY] == ETileContent::HardBlock) continue;
-			if (Data[NX][NY] == ETileContent::SoftBlock) continue; // can't walk through soft blocks
+			if (Data[NX][NY] == ETileContent::SoftBlock) continue;
 
-			FVector2D Next = Key(NX, NY);
-			if (Visited.Contains(Next)) continue;
+			FVector2D Next(NX, NY);
+			if (VisitedSet.Contains(Next)) continue;
 
-			Visited.Add(Next);
-			Queue.Add(Next);
+			VisitedSet.Add(Next);
+			Queue.Enqueue(Next);
 		}
 	}
 
