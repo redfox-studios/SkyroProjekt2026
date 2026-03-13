@@ -30,4 +30,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Instance")
 	int32 Score = 0;
+
 };

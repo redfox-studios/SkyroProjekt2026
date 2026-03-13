@@ -4,7 +4,8 @@
 
 void UBombermanGameInstance::ResetToDefaults()
 {
-	CurrentStage = 1;
-	Lives = 3;
-	Upgrades = FBombermanPlayerUpgrades();
+    CurrentStage = 1;
+    Lives = 3;
+    Score = 0;
+    Upgrades = FBombermanPlayerUpgrades();
 }

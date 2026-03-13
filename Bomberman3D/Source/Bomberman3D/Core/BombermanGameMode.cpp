@@ -304,6 +304,12 @@ void ABombermanGameMode::OnGameOver()
 	GetWorld()->GetTimerManager().ClearTimer(StageTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StageTickHandle);
 
+	// Reset GameInstance so next run starts fresh
+	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
+	{
+		GI->ResetToDefaults();
+	}
+
 	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 	{
 		It->DisableInput(nullptr);
