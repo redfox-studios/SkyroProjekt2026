@@ -8,7 +8,7 @@
 #include "BombermanStageConfig.generated.h"
 
 USTRUCT(BlueprintType)
-struct FBombermanStageConfig : public FTableRowBase
+struct FBombermanStageEnemyEntry
 {
     GENERATED_BODY()
 
@@ -16,7 +16,16 @@ struct FBombermanStageConfig : public FTableRowBase
     TSubclassOf<AEnemyBase> EnemyClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 EnemyCount = 3;
+    int32 Count = 3;
+};
+
+USTRUCT(BlueprintType)
+struct FBombermanStageConfig : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<FBombermanStageEnemyEntry> Enemies;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float StageTimer = 200.f;
