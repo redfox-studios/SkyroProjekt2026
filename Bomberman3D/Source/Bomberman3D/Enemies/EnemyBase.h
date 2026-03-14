@@ -21,10 +21,24 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public:
-	// Override in subclasses to implement specific movement behavior
-	virtual void UpdateMovement() {}
+	// Override in subclasses for unique behavior (pursuit, etc.)
+	// Base implementation: pick random if blocked
+	virtual void UpdateMovement();
 
+	// Shared movement state
+	FVector2D CurrentDirection = FVector2D::ZeroVector;
+	float DirectionChangeTimer = 0.f;
+
+	// Picks a random unblocked direction. Returns ZeroVector if all blocked.
+	FVector2D PickRandomUnblockedDirection() const;
+
+	// Default: checks walkable + not occupied by enemy
+	// Override in subclasses that have wall-pass or other special rules
+	virtual bool IsDirectionBlocked(FVector2D Dir) const;
+
+	bool IsNextTileOccupied(FVector2D Dir) const;
+
+public:
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	UBombermanHealthComponent* HealthComponent;
 
@@ -34,14 +48,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float DirectionChangeInterval = 0.5f;
 
-	ABombermanGrid* Grid = nullptr;
-
-	void ApplyCornerRounding(float DeltaTime);
-
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float CornerRoundingStrength = 5.f;
 
-	bool IsNextTileOccupied(FVector2D Dir) const;
+	ABombermanGrid* Grid = nullptr;
+
+	void ApplyCornerRounding(float DeltaTime);
 
 private:
 	UFUNCTION()
