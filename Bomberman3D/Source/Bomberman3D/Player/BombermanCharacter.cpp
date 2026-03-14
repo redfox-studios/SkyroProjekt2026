@@ -140,7 +140,19 @@ void ABombermanCharacter::OnDeath()
 	ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>();
 	if (!PS) return;
 
+	// decrement lives
 	PS->Lives--;
+
+	// reset upgrades except bombup & fireup
+	// PS->Upgrades.BombUp = 0;
+	// PS->Upgrades.FireUp = 0;
+	PS->Upgrades.SpeedUp = 0;
+	PS->Upgrades.bRemoteControl = false;
+	PS->Upgrades.bWallPass = false;
+	PS->Upgrades.bBombPass = false;
+	PS->Upgrades.bFlamePass = false;
+	PS->Upgrades.bInvincible = false;
+	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
 
 	UE_LOG(LogTemp, Warning, TEXT("Player died. Lives remaining: %d"), PS->Lives);
 
