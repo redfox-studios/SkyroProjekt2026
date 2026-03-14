@@ -20,6 +20,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	// Called by BombermanCharacter when player runs out of lives
@@ -57,6 +58,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	UDataTable* StageConfigTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Debug")
+	bool bShowDebugInfo = true; // toggle this off before building
 
 private:
 	void StartStage();
