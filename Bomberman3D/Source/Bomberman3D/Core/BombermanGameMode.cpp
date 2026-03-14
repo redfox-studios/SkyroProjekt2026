@@ -3,6 +3,7 @@
 #include "Core/BombermanGameMode.h"
 #include "Core/BombermanGameState.h"
 #include "Core/BombermanGameInstance.h"
+#include "Core/BombermanStageConfig.h"
 
 #include "Player/BombermanPlayerController.h"
 #include "Player/BombermanCharacter.h"
@@ -64,6 +65,26 @@ void ABombermanGameMode::StartStage()
 				It->GetCharacterMovement()->MaxWalkSpeed = Speed;
 			}
 			break;
+		}
+	}
+
+	if (StageConfigTable)
+	{
+		FString RowName = FString::Printf(TEXT("%d"), BombermanGameState->CurrentStage);
+		FBombermanStageConfig* Config = StageConfigTable->FindRow<FBombermanStageConfig>(FName(*RowName), TEXT(""));
+
+		if (!Config)
+		{
+			TArray<FBombermanStageConfig*> AllRows;
+			StageConfigTable->GetAllRows<FBombermanStageConfig>(TEXT(""), AllRows);
+			if (AllRows.Num() > 0) Config = AllRows.Last();
+		}
+
+		if (Config)
+		{
+			DefaultEnemyClass = Config->EnemyClass;
+			EnemyCount = Config->EnemyCount;
+			StageTimerDuration = Config->StageTimer;
 		}
 	}
 

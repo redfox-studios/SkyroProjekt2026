@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	TSubclassOf<AEnemyBase> PontantClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	UDataTable* StageConfigTable;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();
