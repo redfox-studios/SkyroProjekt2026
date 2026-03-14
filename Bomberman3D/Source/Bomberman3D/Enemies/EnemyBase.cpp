@@ -18,6 +18,15 @@ AEnemyBase::AEnemyBase()
 
 	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f);
 	GetCapsuleComponent()->bHiddenInGame = false;
+
+// debug arrow
+	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
+	DirectionArrow->SetupAttachment(RootComponent);
+#if WITH_EDITOR
+	DirectionArrow->SetHiddenInGame(false);
+#else
+	DirectionArrow->SetHiddenInGame(true);
+#endif
 }
 
 void AEnemyBase::BeginPlay()

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Components/BombermanHealthComponent.h"
+#include "Components/ArrowComponent.h"
 #include "EnemyBase.generated.h"
 
 class ABombermanGrid;
@@ -59,6 +60,9 @@ public:
 	ABombermanGrid* Grid = nullptr;
 
 	void ApplyCornerRounding(float DeltaTime);
+
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+	UArrowComponent* DirectionArrow;
 
 private:
 	UFUNCTION()
