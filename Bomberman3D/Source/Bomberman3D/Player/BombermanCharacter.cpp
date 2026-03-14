@@ -146,6 +146,13 @@ void ABombermanCharacter::OnDeath()
 	// Still has lives - reset and respawn
 	HealthComponent->ResetHealth();
 	SetActorLocation(Grid ? Grid->GetPlayerSpawnPosition() : FVector::ZeroVector);
+
+	HealthComponent->bInvincible = true;
+
+	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, [this]()
+		{
+			HealthComponent->bInvincible = false;
+		}, 2.f, false);
 }
 
 FVector2D ABombermanCharacter::GetCurrentGridPosition() const

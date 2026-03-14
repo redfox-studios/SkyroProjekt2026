@@ -98,4 +98,6 @@ private:
 
 	UFUNCTION()
 	void OnDeath();
+
+	FTimerHandle InvincibilityTimerHandle;
 };
