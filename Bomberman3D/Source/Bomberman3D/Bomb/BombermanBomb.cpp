@@ -6,6 +6,7 @@
 #include "Grid/BombermanGrid.h"
 #include "Components/BombermanHealthComponent.h"
 #include "EngineUtils.h"
+#include "Particles/ParticleSystem.h"
 
 ABombermanBomb::ABombermanBomb()
 {
@@ -77,6 +78,11 @@ void ABombermanBomb::Explode()
 	// Damage anything on the bomb's own tile
 	DamageActorsOnTile(BX, BY);
 
+	if (ExplosionVFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, Grid->GetTileWorldPosition(BX, BY));
+	}
+
 	const TArray<FVector2D> Directions = {
 		FVector2D(1, 0), FVector2D(-1, 0),
 		FVector2D(0, 1), FVector2D(0, -1)
@@ -100,6 +106,17 @@ void ABombermanBomb::Explode()
 			{
 				Grid->DestroyActorOnTile(X, Y);
 				DamageActorsOnTile(X, Y);
+
+				if (ExplosionVFX)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, Grid->GetTileWorldPosition(X, Y));
+				}
+
+				if (ExplosionSound) // probably gonna move this before the forloop later since its currently gonna spam the explosion sound
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
+				}
+
 				break;
 			}
 			else if (Tile == ETileContent::Bomb)
@@ -113,6 +130,16 @@ void ABombermanBomb::Explode()
 			{
 				// Empty tile - damage anything standing here (player, enemy)
 				DamageActorsOnTile(X, Y);
+
+				if (ExplosionVFX)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, Grid->GetTileWorldPosition(X, Y));
+				}
+
+				if (ExplosionSound) // probably gonna move this before the forloop later since its currently gonna spam the explosion sound
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
+				}
 			}
 		}
 	}

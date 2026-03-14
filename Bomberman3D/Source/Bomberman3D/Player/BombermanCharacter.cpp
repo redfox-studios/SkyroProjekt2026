@@ -60,6 +60,11 @@ void ABombermanCharacter::Move(const FInputActionValue& Value)
 	FVector2D Input = Value.Get<FVector2D>();
 	AddMovementInput(FVector::ForwardVector, Input.Y);
 	AddMovementInput(FVector::RightVector, Input.X);
+
+	if (WalkSound && !GetCharacterMovement()->Velocity.IsZero())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, WalkSound, GetActorLocation());
+	}
 }
 
 void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
@@ -82,6 +87,11 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 
 	ABombermanBomb* Bomb = GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPos, FRotator::ZeroRotator);
 	if (!Bomb) return;
+
+	if (PlaceBombSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, PlaceBombSound, GetActorLocation());
+	}
 
 	Bomb->OwnerCharacter = this;
 
@@ -111,6 +121,11 @@ void ABombermanCharacter::OnDeath()
 	PS->Lives--;
 
 	UE_LOG(LogTemp, Warning, TEXT("Player died. Lives remaining: %d"), PS->Lives);
+
+	if (DeathSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+	}
 
 	if (PS->Lives <= 0)
 	{

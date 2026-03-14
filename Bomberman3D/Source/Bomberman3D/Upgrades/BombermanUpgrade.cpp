@@ -5,6 +5,8 @@
 #include "Player/BombermanCharacter.h"
 #include "Player/BombermanPlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 ABombermanUpgrade::ABombermanUpgrade()
 {
@@ -48,6 +50,16 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 		PS->Upgrades.SpeedUp = FMath::Min(PS->Upgrades.SpeedUp + 1, 3);
 		Player->GetCharacterMovement()->MaxWalkSpeed += Player->GetSpeedUpIncrement();
 		break;
+	}
+
+	if (PickupVFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PickupVFX, GetActorLocation());
+	}
+
+	if (PickupSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 	}
 
 	Destroy();

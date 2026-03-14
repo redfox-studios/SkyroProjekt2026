@@ -57,6 +57,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid")
 	ABombermanGrid* Grid;
 
+	UPROPERTY(EditDefaultsOnly, Category = "VFX")
+	UParticleSystem* ExplosionVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* ExplosionSound;
+
 	ACharacter* OwnerCharacter = nullptr;
 
 	FTimerHandle FuseTimerHandle;

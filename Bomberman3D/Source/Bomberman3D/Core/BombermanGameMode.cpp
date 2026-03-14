@@ -3,6 +3,7 @@
 #include "Core/BombermanGameMode.h"
 #include "Core/BombermanGameState.h"
 #include "Core/BombermanGameInstance.h"
+#include "Core/BombermanStageConfig.h"
 
 #include "Player/BombermanPlayerController.h"
 #include "Player/BombermanCharacter.h"
@@ -21,10 +22,54 @@
 
 ABombermanGameMode::ABombermanGameMode()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	DefaultPawnClass = ABombermanCharacter::StaticClass();
 	PlayerControllerClass = ABombermanPlayerController::StaticClass();
 	PlayerStateClass = ABombermanPlayerState::StaticClass();
 	GameStateClass = ABombermanGameState::StaticClass();
+}
+
+void ABombermanGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!bShowDebugInfo) return;
+
+	ABombermanPlayerState* PS = nullptr;
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		PS = It->GetPlayerState<ABombermanPlayerState>();
+		break;
+	}
+
+	if (BombermanGameState)
+	{
+		GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Yellow,
+			FString::Printf(TEXT("Stage: %d | State: %d | Timer: %.0f | Enemies: %d"),
+				BombermanGameState->CurrentStage,
+				(int32)BombermanGameState->StageState,
+				BombermanGameState->StageTimeRemaining,
+				BombermanGameState->EnemiesRemaining
+			));
+	}
+
+	if (PS)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Cyan,
+			FString::Printf(TEXT("Lives: %d | Score: %d"),
+				PS->Lives,
+				(int32)PS->GetScore()));
+
+		GEngine->AddOnScreenDebugMessage(2, 0.f, FColor::Green,
+			FString::Printf(TEXT("BombUp: %d | FireUp: %d | SpeedUp: %d | Invincible: %d | WallPass: %d"),
+				PS->Upgrades.BombUp,
+				PS->Upgrades.FireUp,
+				PS->Upgrades.SpeedUp,
+				PS->Upgrades.bInvincible,
+				PS->Upgrades.bWallPass
+			));
+	}
 }
 
 void ABombermanGameMode::BeginPlay()
@@ -64,6 +109,26 @@ void ABombermanGameMode::StartStage()
 				It->GetCharacterMovement()->MaxWalkSpeed = Speed;
 			}
 			break;
+		}
+	}
+
+	if (StageConfigTable)
+	{
+		FString RowName = FString::Printf(TEXT("%d"), BombermanGameState->CurrentStage);
+		FBombermanStageConfig* Config = StageConfigTable->FindRow<FBombermanStageConfig>(FName(*RowName), TEXT(""));
+
+		if (!Config)
+		{
+			TArray<FBombermanStageConfig*> AllRows;
+			StageConfigTable->GetAllRows<FBombermanStageConfig>(TEXT(""), AllRows);
+			if (AllRows.Num() > 0) Config = AllRows.Last();
+		}
+
+		if (Config)
+		{
+			DefaultEnemyClass = Config->EnemyClass;
+			EnemyCount = Config->EnemyCount;
+			StageTimerDuration = Config->StageTimer;
 		}
 	}
 

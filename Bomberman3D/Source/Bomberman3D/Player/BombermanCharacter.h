@@ -76,6 +76,16 @@ public:
 
 	float GetSpeedUpIncrement() const { return SpeedUpIncrement; }
 
+	// --- sfx ---
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* WalkSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* PlaceBombSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* DeathSound;
+
 private:
 	void Move(const FInputActionValue& Value);
 	void PlaceBomb(const FInputActionValue& Value);

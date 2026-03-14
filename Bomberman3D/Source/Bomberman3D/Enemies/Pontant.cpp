@@ -88,5 +88,5 @@ bool APontant::IsDirectionBlocked(FVector2D Dir) const
     int32 NX = FMath::RoundToInt(GridPos.X + Dir.X);
     int32 NY = FMath::RoundToInt(GridPos.Y + Dir.Y);
 
-    return !Grid->IsTileWalkable(NX, NY);
+    return !Grid->IsTileWalkable(NX, NY) || IsNextTileOccupied(Dir);
 }
