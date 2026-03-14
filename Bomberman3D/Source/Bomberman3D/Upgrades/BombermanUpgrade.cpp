@@ -55,6 +55,17 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 		PS->Upgrades.SpeedUp = FMath::Min(PS->Upgrades.SpeedUp + 1, 3);
 		Player->GetCharacterMovement()->MaxWalkSpeed += Player->GetSpeedUpIncrement();
 		break;
+	case EUpgradeType::Invincible:
+		if (UBombermanHealthComponent* Health = Player->FindComponentByClass<UBombermanHealthComponent>())
+		{
+			Health->bInvincible = true;
+			FTimerHandle InvincibleTimer;
+			Player->GetWorldTimerManager().SetTimer(InvincibleTimer, [Health]()
+				{
+					if (Health) Health->bInvincible = false;
+				}, 30.f, false);
+		}
+		break;
 	}
 
 	if (PickupVFX)
