@@ -132,7 +132,7 @@
 - [x] Game Over screen
 - [x] Stage Clear screen
 - [ ] Loading Screen
-- [ ] Credits Screen
+- [x] Credits Screen
 - [ ] Settings (keybind remapping via Enhanced Input)
 
 ### Final
