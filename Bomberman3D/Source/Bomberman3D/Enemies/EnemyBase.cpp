@@ -21,6 +21,8 @@ AEnemyBase::AEnemyBase()
 
 	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f);
 	GetCapsuleComponent()->bHiddenInGame = false;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
 	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
 	DirectionArrow->SetupAttachment(RootComponent);
@@ -54,7 +56,13 @@ void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bMovingToTile || !Grid) return;
+	if (!Grid) return;
+
+	if (!bMovingToTile)
+	{
+		StartMovingToNextTile();
+		return;
+	}
 
 	FVector Current = GetActorLocation();
 	FVector Dir = (TargetWorldPos - Current);
@@ -185,6 +193,10 @@ void AEnemyBase::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Enemy overlap with: %s"), *OtherActor->GetName());
+
+	if (!Cast<ABombermanCharacter>(OtherActor)) return;
+
 	if (UBombermanHealthComponent* Health = OtherActor->FindComponentByClass<UBombermanHealthComponent>())
 	{
 		Health->TakeDamage(1.f);
