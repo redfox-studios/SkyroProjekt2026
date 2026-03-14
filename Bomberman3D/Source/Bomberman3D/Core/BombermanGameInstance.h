@@ -37,5 +37,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadGame();
 
-	virtual void Init() override; // REMOVE THIS IN BEFORE BUILD, THIS IS HERE ONLY TO TEST SAVEGAME IN EDITOR
+	virtual void Init() override;
 };
