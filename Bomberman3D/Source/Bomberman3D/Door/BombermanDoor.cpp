@@ -4,6 +4,8 @@
 #include "Components/BoxComponent.h"
 #include "Player/BombermanCharacter.h"
 #include "Core/BombermanGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 ABombermanDoor::ABombermanDoor()
 {
@@ -16,6 +18,11 @@ ABombermanDoor::ABombermanDoor()
 	OverlapBox->SetupAttachment(RootComponent);
 	OverlapBox->SetBoxExtent(FVector(40.f));
 	OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
+
+	if (PortalVFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PortalVFX, GetActorLocation());
+	}
 }
 
 void ABombermanDoor::BeginPlay()
@@ -30,6 +37,11 @@ void ABombermanDoor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 {
 	UE_LOG(LogTemp, Warning, TEXT("Door overlap: %s"), *OtherActor->GetName());
 	if (!Cast<ABombermanCharacter>(OtherActor)) return;
+
+	if (EnterVFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnterVFX, GetActorLocation());
+	}
 
 	if (ABombermanGameMode* GM = Cast<ABombermanGameMode>(GetWorld()->GetAuthGameMode()))
 	{

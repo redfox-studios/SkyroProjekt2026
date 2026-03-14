@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Upgrade")
 	EUpgradeType UpgradeType = EUpgradeType::BombUp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "VFX")
+	UParticleSystem* PickupVFX;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;

@@ -14,6 +14,12 @@ class BOMBERMAN3D_API ABombermanDoor : public AActor
 public:
 	ABombermanDoor();
 
+	UPROPERTY(EditDefaultsOnly, Category = "VFX")
+	UParticleSystem* PortalVFX;
+
+	UPROPERTY(EditDefaultsOnly, Category = "VFX")
+	UParticleSystem* EnterVFX;
+
 protected:
 	virtual void BeginPlay() override;
 
