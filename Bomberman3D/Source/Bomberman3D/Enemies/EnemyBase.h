@@ -19,6 +19,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	// Override in subclasses to implement specific movement behavior
 	virtual void UpdateMovement() {}
@@ -33,6 +34,11 @@ protected:
 	float DirectionChangeInterval = 0.5f;
 
 	ABombermanGrid* Grid = nullptr;
+
+	void ApplyCornerRounding(float DeltaTime);
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float CornerRoundingStrength = 5.f;
 
 private:
 	UFUNCTION()
