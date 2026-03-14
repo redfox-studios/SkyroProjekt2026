@@ -36,12 +36,8 @@ void ABombermanGameMode::Tick(float DeltaTime)
 
 	if (!bShowDebugInfo) return;
 
-	ABombermanPlayerState* PS = nullptr;
-	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
-	{
-		PS = It->GetPlayerState<ABombermanPlayerState>();
-		break;
-	}
+	// ABombermanPlayerState* PS = nullptr;
+	ABombermanPlayerState* PS = GetLocalPlayerState();
 
 	if (BombermanGameState)
 	{
@@ -126,9 +122,10 @@ void ABombermanGameMode::StartStage()
 
 		if (Config)
 		{
-			DefaultEnemyClass = Config->EnemyClass;
-			EnemyCount = Config->EnemyCount;
+			CurrentStageEnemies = Config->Enemies;
 			StageTimerDuration = Config->StageTimer;
+			Grid->SoftBlockDensity = Config->SoftBlockDensity;
+			Grid->UpgradeDensity = Config->UpgradeDensity;
 		}
 	}
 
@@ -170,67 +167,57 @@ void ABombermanGameMode::StartStage()
 
 void ABombermanGameMode::SpawnEnemies()
 {
-	if (!DefaultEnemyClass || !Grid || !BombermanGameState) return;
+	if (!Grid || !BombermanGameState) return;
 
-	// Collect valid spawn tiles - must be empty, not near player spawn (1,1)
 	TArray<FVector2D> ValidTiles;
+	int32 SafeZone = Grid->GetPlayerSafeZone();
+	FVector2D SpawnTile = Grid->GetPlayerSpawnTile();
 
 	for (int32 X = 1; X < Grid->GetGridHeight() - 1; X++)
 	{
 		for (int32 Y = 1; Y < Grid->GetGridWidth() - 1; Y++)
 		{
 			if (Grid->GetTileContent(X, Y) != ETileContent::Empty) continue;
-
-			// Keep enemies away from player spawn
-			int32 SafeZone = Grid->GetPlayerSafeZone();
-			if (FMath::Abs(X - 1) <= SafeZone && FMath::Abs(Y - 1) <= SafeZone) continue;
-
+			if (FMath::Abs(X - SpawnTile.X) <= SafeZone && FMath::Abs(Y - SpawnTile.Y) <= SafeZone) continue;
 			ValidTiles.Add(FVector2D(X, Y));
 		}
 	}
 
-	// Shuffle
+	// Shuffle once
 	for (int32 i = ValidTiles.Num() - 1; i > 0; i--)
 	{
 		int32 j = FMath::RandRange(0, i);
 		ValidTiles.Swap(i, j);
 	}
 
-	int32 Spawned = 0;
-	for (const FVector2D& Tile : ValidTiles)
+	int32 TileIndex = 0;
+	for (const FBombermanStageEnemyEntry& Entry : CurrentStageEnemies)
 	{
-		if (Spawned >= EnemyCount) break;
+		if (!Entry.EnemyClass) continue;
 
-		UE_LOG(LogTemp, Log, TEXT("Trying to spawn at [%d,%d] content: %d"),
-			FMath::RoundToInt(Tile.X), FMath::RoundToInt(Tile.Y),
-			(int32)Grid->GetTileContent(FMath::RoundToInt(Tile.X), FMath::RoundToInt(Tile.Y)));
+		AEnemyBase* CDO = Entry.EnemyClass->GetDefaultObject<AEnemyBase>();
+		float HalfHeight = CDO->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
-		FVector WorldPos = Grid->GetTileWorldPosition(
-			FMath::RoundToInt(Tile.X),
-			FMath::RoundToInt(Tile.Y)
-		);
-
-		AEnemyBase* CDO = DefaultEnemyClass->GetDefaultObject<AEnemyBase>();
-		WorldPos.Z = CDO->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-
-		// AActor* Enemy = GetWorld()->SpawnActor<AActor>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator);
-		// if (Enemy)
-		// {
-		//	  Spawned++;
-		//	  BombermanGameState->EnemiesRemaining++;
-		// }
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		AEnemyBase* Enemy = GetWorld()->SpawnActor<AEnemyBase>(DefaultEnemyClass, WorldPos, FRotator::ZeroRotator, SpawnParams);
-		if (Enemy)
+		for (int32 i = 0; i < Entry.Count; i++)
 		{
-			Spawned++;
-			BombermanGameState->EnemiesRemaining++;
+			if (TileIndex >= ValidTiles.Num()) break;
+
+			FVector WorldPos = Grid->GetTileWorldPosition(
+				FMath::RoundToInt(ValidTiles[TileIndex].X),
+				FMath::RoundToInt(ValidTiles[TileIndex].Y)
+			);
+			WorldPos.Z = HalfHeight;
+			TileIndex++;
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			AEnemyBase* Enemy = GetWorld()->SpawnActor<AEnemyBase>(Entry.EnemyClass, WorldPos, FRotator::ZeroRotator, SpawnParams);
+			if (Enemy)
+			{
+				BombermanGameState->EnemiesRemaining++;
+			}
 		}
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("Spawned %d enemies"), Spawned);
 }
 
 void ABombermanGameMode::OnStageTimerTick()
@@ -243,7 +230,7 @@ void ABombermanGameMode::OnStageTimerExpired()
 {
 	if (!Grid || !PontantClass || !BombermanGameState) return;
 
-	for (int32 i = 0; i < 10; i++)
+	for (int32 i = 0; i < EnemyRushCount; i++)
 	{
 		// pick a random empty tile
 		TArray<FVector2D> ValidTiles;
@@ -309,7 +296,7 @@ void ABombermanGameMode::StageClear()
 
 		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
 		{
-			PS->SetScore(PS->GetScore() + FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
+			PS->AddScore(FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
 
 			if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 			{
@@ -333,26 +320,18 @@ void ABombermanGameMode::StageClear()
 		}
 	}
 
-	FTimerHandle StageClearDelay;
-	GetWorld()->GetTimerManager().SetTimer(
-		StageClearDelay,
-		this,
-		&ABombermanGameMode::LoadNextStage,
-		3.f,
-		false
-	);
+	// FTimerHandle StageClearDelay;
+	// GetWorld()->GetTimerManager().SetTimer(StageClearDelay, this, &ABombermanGameMode::LoadNextStage, 3.f, false);
+
+	// FTimerHandle StageClearDelayHandle; - moved to .h
+	GetWorld()->GetTimerManager().SetTimer(StageClearDelayHandle, this, &ABombermanGameMode::LoadNextStage, StageClearDelay, false);
 }
 
 void ABombermanGameMode::AddScore(int32 Points)
 {
-	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	if (ABombermanPlayerState* PS = GetLocalPlayerState())
 	{
-		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
-		{
-			PS->SetScore((float)(PS->GetScore() + Points));
-			// setscore takes a float not int32 so i had to cast it
-		}
-		break;
+		PS->AddScore(Points);
 	}
 }
 
@@ -399,4 +378,13 @@ void ABombermanGameMode::OnGameOver()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Game over!"));
+}
+
+ABombermanPlayerState* ABombermanGameMode::GetLocalPlayerState() const
+{
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		return It->GetPlayerState<ABombermanPlayerState>();
+	}
+	return nullptr;
 }

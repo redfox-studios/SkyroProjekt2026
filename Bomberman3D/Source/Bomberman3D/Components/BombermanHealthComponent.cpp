@@ -9,7 +9,7 @@ UBombermanHealthComponent::UBombermanHealthComponent()
 
 void UBombermanHealthComponent::TakeDamage(float Amount)
 {
-	if (bIsDead || Amount <= 0.f) return;
+	if (bIsDead || bInvincible || Amount <= 0.f) return;
 
 	CurrentHealth = FMath::Max(0.f, CurrentHealth - Amount);
 	OnHealthChanged.Broadcast(CurrentHealth, MaxHealth);

@@ -9,26 +9,26 @@
 
 ABombermanDoor::ABombermanDoor()
 {
-	PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = false;
 
-	DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
-	RootComponent = DoorMesh;
+    DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
+    RootComponent = DoorMesh;
 
-	OverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapBox"));
-	OverlapBox->SetupAttachment(RootComponent);
-	OverlapBox->SetBoxExtent(FVector(40.f));
-	OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
-
-	if (PortalVFX)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PortalVFX, GetActorLocation());
-	}
+    OverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapBox"));
+    OverlapBox->SetupAttachment(RootComponent);
+    OverlapBox->SetBoxExtent(FVector(40.f));
+    OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
 }
 
 void ABombermanDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	OverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ABombermanDoor::OnOverlapBegin);
+
+	if (PortalVFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PortalVFX, GetActorLocation());
+	}
 }
 
 void ABombermanDoor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

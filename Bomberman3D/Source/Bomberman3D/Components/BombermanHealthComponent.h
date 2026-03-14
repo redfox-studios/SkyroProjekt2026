@@ -42,6 +42,9 @@ public:
 
 	void ResetHealth();
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bInvincible = false;
+
 private:
 	float CurrentHealth = 1.f;
 	bool bIsDead = false;

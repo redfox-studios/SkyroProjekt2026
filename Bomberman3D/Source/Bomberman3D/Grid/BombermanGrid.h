@@ -52,10 +52,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	int32 PlayerSafeZone = 2;
 
-	// 0.0 - 1.0, how dense soft blocks are
-	UPROPERTY(EditAnywhere, Category = "Grid Config")
-	float SoftBlockDensity = 0.65f;
-
 	// Actor classes - assign in editor
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> HardBlockClass;
@@ -121,6 +117,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float UpgradeDensity = 0.2f;
 
+	// 0.0 - 1.0, how dense soft blocks are
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	float SoftBlockDensity = 0.65f;
+
 	TArray<TArray<TSubclassOf<AActor>>> UpgradeMap;
 
 	// --- misc ---
@@ -130,9 +130,18 @@ public:
 	// Returns player spawn position in world space (top-left safe zone)
 	FVector GetPlayerSpawnPosition() const;
 
+	FVector2D GetPlayerSpawnTile() const { return FVector2D(1, 1); }
+
 	// Debug
 	UPROPERTY(EditAnywhere, Category = "Grid Debug")
 	bool bDrawDebug = false;
+
+	void ReserveTile(int32 X, int32 Y);
+	void ReleaseTile(int32 X, int32 Y);
+	bool IsTileReserved(int32 X, int32 Y) const;
+
+private:
+	TSet<FIntPoint> ReservedTiles;
 
 private:
 	void InitGrid();

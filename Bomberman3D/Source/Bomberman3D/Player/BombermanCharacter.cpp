@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Grid/BombermanGrid.h"
 #include "Bomb/BombermanBomb.h"
@@ -16,6 +17,8 @@
 ABombermanCharacter::ABombermanCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f); // UE defaults -> 36 , 80
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -32,6 +35,18 @@ ABombermanCharacter::ABombermanCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	// --- debug shiit ---
+	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
+	DirectionArrow->SetupAttachment(RootComponent);
+
+#if WITH_EDITOR
+	DirectionArrow->SetHiddenInGame(false);
+	GetCapsuleComponent()->bHiddenInGame = false;
+#else
+	DirectionArrow->SetHiddenInGame(true);
+	GetCapsuleComponent()->bHiddenInGame = true;
+#endif
 }
 
 void ABombermanCharacter::BeginPlay()
@@ -41,7 +56,14 @@ void ABombermanCharacter::BeginPlay()
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
 	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
 
-	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	if (ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>())
+	{
+		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed + (PS->Upgrades.SpeedUp * SpeedUpIncrement);
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	}
 }
 
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -139,6 +161,13 @@ void ABombermanCharacter::OnDeath()
 	// Still has lives - reset and respawn
 	HealthComponent->ResetHealth();
 	SetActorLocation(Grid ? Grid->GetPlayerSpawnPosition() : FVector::ZeroVector);
+
+	HealthComponent->bInvincible = true;
+
+	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, [this]()
+		{
+			HealthComponent->bInvincible = false;
+		}, 2.f, false);
 }
 
 FVector2D ABombermanCharacter::GetCurrentGridPosition() const

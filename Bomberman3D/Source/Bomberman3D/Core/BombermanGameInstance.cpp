@@ -47,9 +47,10 @@ void UBombermanGameInstance::ResetToDefaults()
     Upgrades = FBombermanPlayerUpgrades();
 }
 
-// REMOVE THIS IN BEFORE BUILD, THIS IS HERE ONLY TO TEST SAVEGAME IN EDITOR
 void UBombermanGameInstance::Init()
 {
     Super::Init();
+#if WITH_EDITOR
     LoadGame();
+#endif
 }

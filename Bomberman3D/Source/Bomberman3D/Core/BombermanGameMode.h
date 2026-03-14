@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Enemies/EnemyBase.h"
+#include "Core/BombermanStageConfig.h"
+
 #include "BombermanGameMode.generated.h"
 
 class ABombermanGrid;
 class ABombermanGameState;
+class ABombermanPlayerState;
 
 UCLASS()
 class BOMBERMAN3D_API ABombermanGameMode : public AGameModeBase
@@ -38,8 +41,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	int32 StartingLives = 3;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
-	TSubclassOf<AEnemyBase> DefaultEnemyClass;
+	// UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	// TSubclassOf<AEnemyBase> DefaultEnemyClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	int32 EnemyCount = 3;
@@ -62,6 +65,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Debug")
 	bool bShowDebugInfo = true; // toggle this off before building
 
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	int32 EnemyRushCount = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	float StageClearDelay = 3.f;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();
@@ -72,7 +81,12 @@ private:
 
 	FTimerHandle StageTimerHandle;
 	FTimerHandle StageTickHandle;
+	FTimerHandle StageClearDelayHandle;
 
 	ABombermanGrid* Grid = nullptr;
 	ABombermanGameState* BombermanGameState = nullptr;
+
+	ABombermanPlayerState* GetLocalPlayerState() const;
+
+	TArray<FBombermanStageEnemyEntry> CurrentStageEnemies;
 };

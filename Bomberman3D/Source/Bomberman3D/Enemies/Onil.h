@@ -6,27 +6,21 @@
 #include "Enemies/EnemyBase.h"
 #include "Onil.generated.h"
 
+// Onil: random movement, switches to pursuing player when within PursuitRange tiles.
 UCLASS()
 class BOMBERMAN3D_API AOnil : public AEnemyBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    AOnil();
+	AOnil();
 
 protected:
-    virtual void BeginPlay() override;
-    virtual void Tick(float DeltaTime) override;
-    virtual void UpdateMovement() override;
+	virtual void OnTileReached() override;
 
-    UPROPERTY(EditAnywhere, Category = "AI")
-    float PursuitRange = 5.f; // in tiles
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float PursuitRange = 5.f; // in tiles
 
 private:
-    void PickRandomDirection();
-    void MoveTowardPlayer();
-    bool IsDirectionBlocked(FVector2D Dir) const;
-
-    FVector2D CurrentDirection = FVector2D::ZeroVector;
-    float DirectionChangeTimer = 0.f;
+	void MoveTowardPlayer();
 };
