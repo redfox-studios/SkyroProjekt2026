@@ -168,22 +168,25 @@ struct FPlayerUpgrades
 
 ## 7. Enemy AI
 
+## 7. Enemy AI
+
 Each enemy type is a separate C++ class inheriting from `AEnemyBase`. Behavior complexity increases with enemy tier.
 
-| Enemy   | AI Approach                             | Complexity           |
-|---------|-----------------------------------------|----------------------|
-| Ballom  | Random direction, change on wall hit    | Low - pure C++       |
-| Onil    | Random + pursue if player nearby        | Low-Medium - C++     |
-| Dahl    | Alternates axis (horizontal ↔ vertical) | Low - C++            |
-| Minvo   | Random + pursue, can get stuck          | Medium - C++         |
-| Doria   | Chase player + avoid bombs              | High - Behavior Tree |
-| Ovape   | Mostly ignores player, occasional chase | Medium - C++         |
-| Pass    | Aggressive chase                        | Medium - C++         |
-| Pontant | Always chase, fastest                   | Medium - C++         |
+| Enemy   | AI Approach                             | Complexity           | Status  |
+|---------|-----------------------------------------|----------------------|---------|
+| Ballom  | Random direction, change on wall hit    | Low - C++            | Done    |
+| Onil    | Random + pursue if player nearby        | Low-Medium - C++     | Done    |
+| Dahl    | Alternates axis (horizontal ↔ vertical) | Low - C++            | Pending |
+| Minvo   | Random + pursue, can get stuck          | Medium - C++         | Pending |
+| Doria   | Chase player + avoid bombs              | High - Behavior Tree | Pending |
+| Ovape   | Mostly ignores player, occasional chase | Medium - C++         | Pending |
+| Pass    | Aggressive chase                        | Medium - C++         | Pending |
+| Pontant | Always chase, fastest                   | Medium - C++         | Done    |
 
-NavMesh will be used for pathfinding on enemies that chase the player. Enemies that can pass through soft blocks will have a separate NavMesh config that ignores soft block collision.
-
-Doria bomb avoidance - on bomb placement, broadcast an event. Doria listens, checks if bomb is within X tiles, and pathfinds away. This is the most complex AI behavior, scheduled for May.
+All enemies share these systems from `AEnemyBase`:
+- Corner rounding — nudges enemy toward tile center on the axis they're not moving on, prevents getting stuck on corners
+- Tile occupancy — before moving to a tile, checks if another enemy is already there via `IsTileOccupiedByEnemy()`
+- Health component — reusable `UBombermanHealthComponent`, notifies GameMode on death
 
 <br><br>
 
@@ -239,19 +242,37 @@ Using UE5's built-in `USaveGame`. No password system.
 - Current lives
 - Current score
 - Active upgrades struct
-- Current grid size (in case it grew)
 
-Save happens on stage clear and on game over. Load happens on game start / continue from main menu.
+Grid size is NOT saved — it's calculated from stage number on load, so it's always correct without storing it.
 
-```cpp
-// Save
-UGameplayStatics::SaveGameToSlot(SaveGameObject, TEXT("BombermanSave"), 0);
+Save happens on stage clear and on game over. Load happens via `UBombermanGameInstance::Init()` on game start, and explicitly on "Continue" from main menu.
 
-// Load
-UBombermanSaveGame* Save = Cast<UBombermanSaveGame>(
-    UGameplayStatics::LoadGameFromSlot(TEXT("BombermanSave"), 0)
-);
-```
+<br>
+
+## 10a. Score System
+
+Score is tracked in `APlayerState` (UE built-in) and persisted through stages via GameInstance and SaveGame.
+
+Points:
+- Enemy kill: 100 points
+- Soft block destroyed: 10 points  
+- Stage clear time bonus: remaining seconds × 10
+
+Score is added via `ABombermanGameMode::AddScore(int32 Points)` which finds the player and calls `PS->SetScore()`.
+
+Score resets to 0 on game over via `UBombermanGameInstance::ResetToDefaults()`.
+
+<br>
+
+## 10b. Debug System
+
+`ABombermanGameMode` has a `bShowDebugInfo` bool (off by default, toggle in BP details panel). When enabled, displays on-screen via `GEngine->AddOnScreenDebugMessage`:
+
+- Line 0 (yellow): Stage number, stage state, timer remaining, enemies remaining
+- Line 1 (cyan): Lives, score
+- Line 2 (green): BombUp, FireUp, SpeedUp, Invincible, WallPass levels
+
+Messages update in place (fixed key IDs 0-2) so they don't spam new lines.
 
 <br><br>
 
@@ -317,19 +338,33 @@ Source/
 
 ## 14. Development Schedule
 
-- Core systems: grid, player movement, bomb placement/explosion, soft/hard walls, 2 enemies (no AI), basic stage loading, HUD
-- Procedural stage generation, all upgrades, save system, stage progression
-- Full AI for all 8 enemies, VFX, sound, items, special item conditions
-- UI polish, settings/keybinds, loading screens, credits, local multiplayer (if time), final bugfix pass
+### Done (Mike's Month 1 Speedrun)
+- Full grid system with procedural generation, flood-fill door placement, grid growth
+- Player movement, bomb system, chain reactions, all explosion logic
+- Full stage flow (win/lose conditions, stage timer, enemy rush)
+- Score system, save system, GameInstance persistence
+- Ballom, Onil, Pontant enemies
+- BombUp, FireUp, SpeedUp upgrades
+- Main Menu, Pause Menu, HUD, Game Over screen, Stage Clear screen
+- Data Table driven stage config
+- VFX and SFX support hooks
+- Corner rounding, tile occupancy
+
+### Remaining
+- Dahl, Minvo, Ovape, Pass enemies (simple, waiting on models)
+- Doria AI with Behavior Tree (start early, don't leave to May)
+- NavMesh setup for chasing enemies
+- Remaining upgrades (RemoteControl, WallPass, BombPass, FlamePass, Invincible)
+- VFX and SFX assets (designer work)
+- Loading Screen, Credits Screen, Settings
+- Final bugfix pass
+- Local co-op/versus (if time allows)
 
 <br><br>
 
 ## 15. Known Risks
 
-Enemy AI complexity - Doria's bomb avoidance and Pontant's pathfinding through soft blocks will be the hardest part. NavMesh with dynamic obstacles (soft blocks being destroyed mid-game) needs testing early. Don't leave this to May.
-
-Procedural generation edge cases - soft block placement needs to guarantee the door is always reachable and there's always a valid path. Worth adding a simple flood-fill check after generation.
-
-Dynamic NavMesh - when soft blocks get destroyed, NavMesh needs to update. UE5 supports dynamic NavMesh rebuilding but it has a cost. Test performance early.
-
-Multiplayer refactor cost - if online multiplayer gets added late, it might require significant refactoring. Design decisions now (no global player singletons, proper use of GameState/PlayerState) will minimize this.
+- Doria AI complexity - bomb avoidance via Behavior Tree is the hardest part. Don't leave to May. NavMesh with dynamic obstacles (soft blocks destroyed mid-game) needs performance testing early.
+- Art bottleneck - 3D artists are behind schedule. Code is waiting on models for enemies and environment. Risk: assets arrive late and there's not enough time to integrate and polish properly.- - 
+- Dynamic NavMesh - when soft blocks get destroyed, NavMesh needs to update. UE5 supports dynamic rebuilding but it has a performance cost. Test early.
+- Multiplayer refactor cost - no global player singletons in the codebase, always routing through PlayerState/GameState, so the door is open. But adding online multiplayer late would still be significant work.
