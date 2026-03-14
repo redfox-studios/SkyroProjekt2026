@@ -9,6 +9,7 @@
 
 class ABombermanGrid;
 class ABombermanGameState;
+class ABombermanPlayerState;
 
 UCLASS()
 class BOMBERMAN3D_API ABombermanGameMode : public AGameModeBase
@@ -78,7 +79,10 @@ private:
 
 	FTimerHandle StageTimerHandle;
 	FTimerHandle StageTickHandle;
+	FTimerHandle StageClearDelayHandle;
 
 	ABombermanGrid* Grid = nullptr;
 	ABombermanGameState* BombermanGameState = nullptr;
+
+	ABombermanPlayerState* GetLocalPlayerState() const;
 };

@@ -36,12 +36,8 @@ void ABombermanGameMode::Tick(float DeltaTime)
 
 	if (!bShowDebugInfo) return;
 
-	ABombermanPlayerState* PS = nullptr;
-	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
-	{
-		PS = It->GetPlayerState<ABombermanPlayerState>();
-		break;
-	}
+	// ABombermanPlayerState* PS = nullptr;
+	ABombermanPlayerState* PS = GetLocalPlayerState();
 
 	if (BombermanGameState)
 	{
@@ -335,19 +331,15 @@ void ABombermanGameMode::StageClear()
 	// FTimerHandle StageClearDelay;
 	// GetWorld()->GetTimerManager().SetTimer(StageClearDelay, this, &ABombermanGameMode::LoadNextStage, 3.f, false);
 
-	FTimerHandle StageClearDelayHandle;
+	// FTimerHandle StageClearDelayHandle; - moved to .h
 	GetWorld()->GetTimerManager().SetTimer(StageClearDelayHandle, this, &ABombermanGameMode::LoadNextStage, StageClearDelay, false);
 }
 
 void ABombermanGameMode::AddScore(int32 Points)
 {
-	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	if (ABombermanPlayerState* PS = GetLocalPlayerState())
 	{
-		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
-		{
-			PS->AddScore(Points);
-		}
-		break;
+		PS->AddScore(Points);
 	}
 }
 
@@ -394,4 +386,13 @@ void ABombermanGameMode::OnGameOver()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Game over!"));
+}
+
+ABombermanPlayerState* ABombermanGameMode::GetLocalPlayerState() const
+{
+	for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
+	{
+		return It->GetPlayerState<ABombermanPlayerState>();
+	}
+	return nullptr;
 }
