@@ -19,9 +19,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
 	FBombermanPlayerUpgrades Upgrades;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
-	//int32 Score = 0;
-	// ue already has builtin score system
+	// UPROPERTY(BlueprintReadOnly, Category = "Player State")
+	// int32 Score = 0;
+
+	void AddScore(int32 Points) { SetScore(GetScore() + Points); }
+	int32 GetCurrentScore() const { return FMath::RoundToInt(GetScore()); }
 
 	// Derived from upgrades, don't set these directly
 	int32 GetBombCount() const { return 1 + Upgrades.BombUp; }

@@ -308,7 +308,7 @@ void ABombermanGameMode::StageClear()
 
 		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
 		{
-			PS->SetScore(PS->GetScore() + FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
+			PS->AddScore(FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
 
 			if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 			{
@@ -345,8 +345,7 @@ void ABombermanGameMode::AddScore(int32 Points)
 	{
 		if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
 		{
-			PS->SetScore((float)(PS->GetScore() + Points));
-			// setscore takes a float not int32 so i had to cast it
+			PS->AddScore(Points);
 		}
 		break;
 	}
