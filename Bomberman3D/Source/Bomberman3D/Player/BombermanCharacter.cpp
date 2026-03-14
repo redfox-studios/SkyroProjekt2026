@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Grid/BombermanGrid.h"
 #include "Bomb/BombermanBomb.h"
@@ -16,6 +17,8 @@
 ABombermanCharacter::ABombermanCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f); // UE defaults -> 36 , 80
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -32,6 +35,18 @@ ABombermanCharacter::ABombermanCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	// --- debug shiit ---
+	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
+	DirectionArrow->SetupAttachment(RootComponent);
+
+#if WITH_EDITOR
+	DirectionArrow->SetHiddenInGame(false);
+	GetCapsuleComponent()->bHiddenInGame = false;
+#else
+	DirectionArrow->SetHiddenInGame(true);
+	GetCapsuleComponent()->bHiddenInGame = true;
+#endif
 }
 
 void ABombermanCharacter::BeginPlay()

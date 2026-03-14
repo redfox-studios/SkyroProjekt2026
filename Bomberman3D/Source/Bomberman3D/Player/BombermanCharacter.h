@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/ArrowComponent.h"
 
 #include "InputMappingContext.h"
 #include "InputAction.h"
@@ -85,6 +86,11 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	USoundBase* DeathSound;
+
+	// --- misc ---
+
+	UPROPERTY(VisibleAnywhere, Category = "Debug")
+	UArrowComponent* DirectionArrow;
 
 private:
 	void Move(const FInputActionValue& Value);

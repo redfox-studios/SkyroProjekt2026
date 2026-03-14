@@ -20,16 +20,20 @@ AEnemyBase::AEnemyBase()
 	bUseControllerRotationYaw = false;
 
 	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f);
-	GetCapsuleComponent()->bHiddenInGame = false;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
+
+	// --- debug shiit ---
 	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
 	DirectionArrow->SetupAttachment(RootComponent);
+
 #if WITH_EDITOR
 	DirectionArrow->SetHiddenInGame(false);
+	GetCapsuleComponent()->bHiddenInGame = false;
 #else
 	DirectionArrow->SetHiddenInGame(true);
+	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
 }
 
