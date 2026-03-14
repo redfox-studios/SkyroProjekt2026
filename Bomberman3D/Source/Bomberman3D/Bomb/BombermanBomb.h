@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "VFX")
 	UParticleSystem* ExplosionVFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* ExplosionSound;
+
 	ACharacter* OwnerCharacter = nullptr;
 
 	FTimerHandle FuseTimerHandle;

@@ -57,5 +57,10 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), PickupVFX, GetActorLocation());
 	}
 
+	if (PickupSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+	}
+
 	Destroy();
 }

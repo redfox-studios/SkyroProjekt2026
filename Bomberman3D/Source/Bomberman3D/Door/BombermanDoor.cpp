@@ -43,6 +43,11 @@ void ABombermanDoor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnterVFX, GetActorLocation());
 	}
 
+	if (EnterSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, EnterSound, GetActorLocation());
+	}
+
 	if (ABombermanGameMode* GM = Cast<ABombermanGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		GM->OnPlayerEnteredDoor();

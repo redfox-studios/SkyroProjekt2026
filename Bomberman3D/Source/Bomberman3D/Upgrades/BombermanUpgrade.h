@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "VFX")
 	UParticleSystem* PickupVFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* PickupSound;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;

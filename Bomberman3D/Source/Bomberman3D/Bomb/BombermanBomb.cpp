@@ -112,6 +112,11 @@ void ABombermanBomb::Explode()
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, Grid->GetTileWorldPosition(X, Y));
 				}
 
+				if (ExplosionSound) // probably gonna move this before the forloop later since its currently gonna spam the explosion sound
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
+				}
+
 				break;
 			}
 			else if (Tile == ETileContent::Bomb)
@@ -129,6 +134,11 @@ void ABombermanBomb::Explode()
 				if (ExplosionVFX)
 				{
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, Grid->GetTileWorldPosition(X, Y));
+				}
+
+				if (ExplosionSound) // probably gonna move this before the forloop later since its currently gonna spam the explosion sound
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
 				}
 			}
 		}

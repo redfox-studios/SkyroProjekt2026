@@ -20,6 +20,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "VFX")
 	UParticleSystem* EnterVFX;
 
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	USoundBase* EnterSound;
+
 protected:
 	virtual void BeginPlay() override;
 
