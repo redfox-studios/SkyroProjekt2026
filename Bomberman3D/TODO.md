@@ -28,6 +28,7 @@
 - [x] BombCount and BlastRadius derived from upgrades (GetBombCount(), GetBlastRadius())
 - [x] Health component (BombermanHealthComponent, reusable on enemies)
 - [x] Death handling (lose life, respawn or game over)
+- [x] Invincibility frames after respawn
 
 ### Bomb
 - [x] ABomb actor class
@@ -51,11 +52,14 @@
 - [x] Win condition (all enemies dead -> door active -> player enters door)
 - [x] Lose condition (game over screen with restart button)
 - [x] Level reload on stage clear
-- [x] Stage timer expire -> Enemy Rush (spawn 10 Pontants)
+- [x] Stage timer expire -> Enemy Rush (spawn Pontants, count configurable)
 - [x] Score system
 
 ### Enemies
 - [x] AEnemyBase class (health component, death notifies GameMode, configurable speed)
+- [x] Enemy kills player on touch
+- [x] Tile-to-tile movement (no more per-frame re-evaluation, no corner rounding jank)
+- [x] Tile reservation system (prevents two enemies targeting same tile)
 - [x] Ballom (random direction, changes on wall hit)
 
 ### HUD
@@ -73,7 +77,7 @@
 - [x] Door hidden under random soft block
 - [x] Flood-fill check (guarantee door is always reachable)
 - [x] Upgrades hidden under random soft blocks (BombUp, FireUp, SpeedUp)
-- [x] Data Table setup (enemy types, count, timer per stage)
+- [x] Data Table setup (multiple enemy types + counts, timer, soft block density, upgrade density per stage)
 - [x] Grid growth (every X stages, grid grows by 1 in each direction)
 
 ### Upgrades & Items
@@ -94,7 +98,7 @@
 
 ### Stage Progression
 - [x] Load next stage on clear (reloads current level for now)
-- [x] Enemy Rush (10 Pontants on timer expire)
+- [x] Enemy Rush (Pontants on timer expire, count configurable)
 - [ ] 50 total stages
 
 ---
@@ -107,12 +111,9 @@
 - [ ] Ovape (mostly ignores player)
 - [ ] Pass (aggressive chase)
 - [x] Pontant (always chase, fastest)
-- [ ] Doria (chase + bomb avoidance via Behavior Tree) <- hardest, start early
-- [ ] NavMesh setup for pathfinding enemies
-- [ ] Separate NavMesh config for soft-block-passthrough enemies
-- [ ] Dynamic NavMesh rebuild on soft block destruction <- test performance early
+- [ ] Doria (chase + bomb avoidance) <- signed off for now, revisit if time allows
 - [x] Tile occupancy (max one enemy per tile)
-- [x] Corner rounding logic for enemies
+- [x] Tile reservation system (prevents movement conflicts)
 
 ### VFX & Sound
 - [x] Explosion VFX support
@@ -132,7 +133,7 @@
 - [x] Game Over screen
 - [x] Stage Clear screen
 - [ ] Loading Screen
-- [ ] Credits Screen
+- [x] Credits Screen
 - [ ] Settings (keybind remapping via Enhanced Input)
 
 ### Final
@@ -142,7 +143,6 @@
 ---
 
 ## Known Risks
-- Dynamic NavMesh performance with soft block destruction -> test early
-- Doria AI complexity -> don't leave to May
+- Doria AI complexity -> signed off for now, revisit if time allows
 - Procedural gen edge cases -> flood-fill check is in, keep an eye on edge cases
 - Multiplayer refactor cost -> no global player singletons, always use PlayerState/GameState
