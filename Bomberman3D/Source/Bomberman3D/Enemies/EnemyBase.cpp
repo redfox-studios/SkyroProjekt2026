@@ -32,6 +32,8 @@ void AEnemyBase::BeginPlay()
 
 	// Pick an initial direction
 	CurrentDirection = PickRandomUnblockedDirection();
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnCapsuleOverlap);
 }
 
 void AEnemyBase::Tick(float DeltaTime)
@@ -152,5 +154,15 @@ void AEnemyBase::ApplyCornerRounding(float DeltaTime)
 			NewPos.X += DeltaX * CornerRoundingStrength * DeltaTime;
 			SetActorLocation(NewPos);
 		}
+	}
+}
+
+void AEnemyBase::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (UBombermanHealthComponent* Health = OtherActor->FindComponentByClass<UBombermanHealthComponent>())
+	{
+		Health->TakeDamage(1.f);
 	}
 }
