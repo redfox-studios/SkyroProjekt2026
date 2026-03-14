@@ -422,3 +422,18 @@ bool ABombermanGrid::IsTileOccupiedByEnemy(int32 X, int32 Y) const
 
 	return OverlappingActors.Num() > 0;
 }
+
+void ABombermanGrid::ReserveTile(int32 X, int32 Y)
+{
+	ReservedTiles.Add(FIntPoint(X, Y));
+}
+
+void ABombermanGrid::ReleaseTile(int32 X, int32 Y)
+{
+	ReservedTiles.Remove(FIntPoint(X, Y));
+}
+
+bool ABombermanGrid::IsTileReserved(int32 X, int32 Y) const
+{
+	return ReservedTiles.Contains(FIntPoint(X, Y));
+}

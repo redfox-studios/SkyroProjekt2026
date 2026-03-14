@@ -97,7 +97,6 @@ void AEnemyBase::StartMovingToNextTile()
 {
 	if (!Grid || CurrentDirection.IsZero())
 	{
-		// Try to unstick
 		CurrentDirection = PickRandomUnblockedDirection();
 		if (CurrentDirection.IsZero()) return;
 	}
@@ -114,6 +113,11 @@ void AEnemyBase::StartMovingToNextTile()
 		NX = FMath::RoundToInt(GridPos.X + CurrentDirection.X);
 		NY = FMath::RoundToInt(GridPos.Y + CurrentDirection.Y);
 	}
+
+	// Release previous reservation, claim new tile
+	ReleaseReservation();
+	Grid->ReserveTile(NX, NY);
+	CurrentReservedTile = FIntPoint(NX, NY);
 
 	TargetWorldPos = Grid->GetTileWorldPosition(NX, NY);
 	TargetWorldPos.Z = GetActorLocation().Z;
@@ -162,11 +166,13 @@ bool AEnemyBase::IsNextTileOccupied(FVector2D Dir) const
 	int32 NX = FMath::RoundToInt(GridPos.X + Dir.X);
 	int32 NY = FMath::RoundToInt(GridPos.Y + Dir.Y);
 
-	return Grid->IsTileOccupiedByEnemy(NX, NY);
+	return Grid->IsTileOccupiedByEnemy(NX, NY) || Grid->IsTileReserved(NX, NY);
 }
 
 void AEnemyBase::OnDeath()
 {
+	ReleaseReservation();
+
 	if (ABombermanGameMode* GM = Cast<ABombermanGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		GM->OnEnemyDied();
@@ -182,5 +188,14 @@ void AEnemyBase::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	if (UBombermanHealthComponent* Health = OtherActor->FindComponentByClass<UBombermanHealthComponent>())
 	{
 		Health->TakeDamage(1.f);
+	}
+}
+
+void AEnemyBase::ReleaseReservation()
+{
+	if (Grid && CurrentReservedTile != FIntPoint(-1, -1))
+	{
+		Grid->ReleaseTile(CurrentReservedTile.X, CurrentReservedTile.Y);
+		CurrentReservedTile = FIntPoint(-1, -1);
 	}
 }

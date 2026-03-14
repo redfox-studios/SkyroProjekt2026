@@ -37,6 +37,9 @@ protected:
 	// Current movement direction (in grid units)
 	FVector2D CurrentDirection = FVector2D::ZeroVector;
 
+	FIntPoint CurrentReservedTile = FIntPoint(-1, -1);
+	void ReleaseReservation();
+
 public:
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	UBombermanHealthComponent* HealthComponent;

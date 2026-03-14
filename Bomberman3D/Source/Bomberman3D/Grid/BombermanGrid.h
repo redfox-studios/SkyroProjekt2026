@@ -136,6 +136,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid Debug")
 	bool bDrawDebug = false;
 
+	void ReserveTile(int32 X, int32 Y);
+	void ReleaseTile(int32 X, int32 Y);
+	bool IsTileReserved(int32 X, int32 Y) const;
+
+private:
+	TSet<FIntPoint> ReservedTiles;
+
 private:
 	void InitGrid();
 	void PlaceHardWalls();
