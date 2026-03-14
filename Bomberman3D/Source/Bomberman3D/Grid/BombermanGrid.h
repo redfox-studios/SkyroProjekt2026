@@ -95,6 +95,7 @@ public:
 	int32 GetGridWidth() const { return BaseGridWidth; }
 	int32 GetGridHeight() const { return BaseGridHeight; }
 	int32 GetPlayerSafeZone() const { return PlayerSafeZone; }
+	bool IsTileOccupiedByEnemy(int32 X, int32 Y) const;
 
 	// --- actor spawning ---
 

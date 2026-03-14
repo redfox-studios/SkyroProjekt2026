@@ -5,6 +5,7 @@
 #include "Core/BombermanGameMode.h"
 #include "Core/BombermanGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Enemies/EnemyBase.h"
 
 ABombermanGrid::ABombermanGrid()
 {
@@ -390,4 +391,29 @@ void ABombermanGrid::PlaceUpgrades()
 			}
 		}
 	}
+}
+
+bool ABombermanGrid::IsTileOccupiedByEnemy(int32 X, int32 Y) const
+{
+	if (!IsInBounds(X, Y)) return false;
+
+	FVector TileWorld = GetTileWorldPosition(X, Y);
+	float HalfTile = TileSize * 0.5f;
+
+	TArray<AActor*> OverlappingActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
+		UEngineTypes::ConvertToObjectType(ECC_Pawn)
+	};
+
+	UKismetSystemLibrary::BoxOverlapActors(
+		GetWorld(),
+		TileWorld,
+		FVector(HalfTile * 0.6f),
+		ObjectTypes,
+		AEnemyBase::StaticClass(),
+		TArray<AActor*>{},
+		OverlappingActors
+	);
+
+	return OverlappingActors.Num() > 0;
 }

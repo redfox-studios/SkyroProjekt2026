@@ -50,7 +50,8 @@ void ABombermanGameMode::Tick(float DeltaTime)
 				BombermanGameState->CurrentStage,
 				(int32)BombermanGameState->StageState,
 				BombermanGameState->StageTimeRemaining,
-				BombermanGameState->EnemiesRemaining));
+				BombermanGameState->EnemiesRemaining
+			));
 	}
 
 	if (PS)
@@ -66,7 +67,8 @@ void ABombermanGameMode::Tick(float DeltaTime)
 				PS->Upgrades.FireUp,
 				PS->Upgrades.SpeedUp,
 				PS->Upgrades.bInvincible,
-				PS->Upgrades.bWallPass));
+				PS->Upgrades.bWallPass
+			));
 	}
 }
 

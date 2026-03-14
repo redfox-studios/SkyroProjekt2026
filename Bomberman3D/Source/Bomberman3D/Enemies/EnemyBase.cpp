@@ -91,3 +91,14 @@ void AEnemyBase::ApplyCornerRounding(float DeltaTime)
         }
     }
 }
+
+bool AEnemyBase::IsNextTileOccupied(FVector2D Dir) const
+{
+    if (!Grid) return false;
+
+    FVector2D GridPos = Grid->GetGridPositionFromWorld(GetActorLocation());
+    int32 NX = FMath::RoundToInt(GridPos.X + Dir.X);
+    int32 NY = FMath::RoundToInt(GridPos.Y + Dir.Y);
+
+    return Grid->IsTileOccupiedByEnemy(NX, NY);
+}

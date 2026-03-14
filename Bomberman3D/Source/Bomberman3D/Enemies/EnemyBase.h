@@ -21,6 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+public:
 	// Override in subclasses to implement specific movement behavior
 	virtual void UpdateMovement() {}
 
@@ -39,6 +40,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float CornerRoundingStrength = 5.f;
+
+	bool IsNextTileOccupied(FVector2D Dir) const;
 
 private:
 	UFUNCTION()
