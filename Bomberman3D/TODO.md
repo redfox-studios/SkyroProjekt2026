@@ -74,7 +74,7 @@
 - [x] Flood-fill check (guarantee door is always reachable)
 - [x] Upgrades hidden under random soft blocks (BombUp, FireUp)
 - [ ] Data Table setup (enemy types, upgrades, timer per stage)
-- [ ] Grid growth (every X stages, grid grows by 1 in each direction)
+- [x] Grid growth (every X stages, grid grows by 1 in each direction)
 
 ### Upgrades & Items
 - [x] BombUp (max bombs +1)

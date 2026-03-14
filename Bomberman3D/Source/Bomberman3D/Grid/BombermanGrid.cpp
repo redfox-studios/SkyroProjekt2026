@@ -3,6 +3,8 @@
 #include "Grid/BombermanGrid.h"
 #include "Engine/World.h"
 #include "Core/BombermanGameMode.h"
+#include "Core/BombermanGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 ABombermanGrid::ABombermanGrid()
 {
@@ -12,6 +14,15 @@ ABombermanGrid::ABombermanGrid()
 void ABombermanGrid::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// calculate grid size based on current stage
+	// doing this because its way better than saving the grid properties
+	if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(UGameplayStatics::GetGameInstance(GetWorld())))
+	{
+		int32 Growths = (GI->CurrentStage - 1) / GridGrowthPerStages;
+		BaseGridWidth = FMath::Min(BaseGridWidth + Growths * 2, MaxGridWidth);
+		BaseGridHeight = FMath::Min(BaseGridHeight + Growths * 2, MaxGridHeight);
+	}
 
 	InitGrid();
 	PlaceHardWalls();
