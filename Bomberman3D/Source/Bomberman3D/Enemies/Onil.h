@@ -16,7 +16,7 @@ public:
 	AOnil();
 
 protected:
-	virtual void UpdateMovement() override;
+	virtual void OnTileReached() override;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	float PursuitRange = 5.f; // in tiles

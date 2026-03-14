@@ -22,27 +22,20 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	// Override in subclasses for unique behavior (pursuit, etc.)
-	// Base implementation: pick random if blocked
-	virtual void UpdateMovement();
+	// Called when the enemy reaches its target tile - override in subclasses
+	// Base implementation: pick a random unblocked direction
+	virtual void OnTileReached();
 
-	// Shared movement state
-	FVector2D CurrentDirection = FVector2D::ZeroVector;
-	float DirectionChangeTimer = 0.f;
-
-	// Picks a random unblocked direction. Returns ZeroVector if all blocked.
-	FVector2D PickRandomUnblockedDirection() const;
-
-	// Default: checks walkable + not occupied by enemy
-	// Override in subclasses that have wall-pass or other special rules
+	// Returns true if moving to the adjacent tile in Dir is not allowed
 	virtual bool IsDirectionBlocked(FVector2D Dir) const;
+
+	// Picks a random unblocked direction, returns ZeroVector if all blocked
+	FVector2D PickRandomUnblockedDirection() const;
 
 	bool IsNextTileOccupied(FVector2D Dir) const;
 
-	UFUNCTION()
-	void OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
+	// Current movement direction (in grid units)
+	FVector2D CurrentDirection = FVector2D::ZeroVector;
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = "Health")
@@ -51,20 +44,23 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MoveSpeed = 150.f;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float DirectionChangeInterval = 0.5f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float CornerRoundingStrength = 5.f;
-
-	ABombermanGrid* Grid = nullptr;
-
-	void ApplyCornerRounding(float DeltaTime);
-
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 	UArrowComponent* DirectionArrow;
 
+	ABombermanGrid* Grid = nullptr;
+
 private:
+	// Tile-to-tile movement state
+	FVector TargetWorldPos = FVector::ZeroVector;
+	bool bMovingToTile = false;
+
+	void StartMovingToNextTile();
+
 	UFUNCTION()
 	void OnDeath();
+
+	UFUNCTION()
+	void OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult);
 };

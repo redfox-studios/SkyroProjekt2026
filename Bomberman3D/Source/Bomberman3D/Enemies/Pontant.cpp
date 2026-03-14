@@ -2,7 +2,6 @@
 
 #include "Enemies/Pontant.h"
 #include "Grid/BombermanGrid.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
@@ -11,7 +10,7 @@ APontant::APontant()
 	MoveSpeed = 250.f;
 }
 
-void APontant::UpdateMovement()
+void APontant::OnTileReached()
 {
 	ChasePlayer();
 }

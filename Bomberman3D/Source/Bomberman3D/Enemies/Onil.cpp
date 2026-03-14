@@ -2,7 +2,6 @@
 
 #include "Enemies/Onil.h"
 #include "Grid/BombermanGrid.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
@@ -11,7 +10,7 @@ AOnil::AOnil()
 	MoveSpeed = 150.f;
 }
 
-void AOnil::UpdateMovement()
+void AOnil::OnTileReached()
 {
 	if (!Grid) return;
 
@@ -28,8 +27,8 @@ void AOnil::UpdateMovement()
 		}
 	}
 
-	// Fall back to base random behavior
-	AEnemyBase::UpdateMovement();
+	// Outside pursuit range - fall back to base random behavior
+	AEnemyBase::OnTileReached();
 }
 
 void AOnil::MoveTowardPlayer()

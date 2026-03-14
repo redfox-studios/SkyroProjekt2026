@@ -3,6 +3,8 @@
 #include "Enemies/EnemyBase.h"
 #include "Grid/BombermanGrid.h"
 #include "Core/BombermanGameMode.h"
+#include "Player/BombermanCharacter.h"
+#include "Components/BombermanHealthComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -14,12 +16,12 @@ AEnemyBase::AEnemyBase()
 	HealthComponent = CreateDefaultSubobject<UBombermanHealthComponent>(TEXT("HealthComponent"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	bUseControllerRotationYaw = false;
 
 	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f);
 	GetCapsuleComponent()->bHiddenInGame = false;
 
-// debug arrow
 	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
 	DirectionArrow->SetupAttachment(RootComponent);
 #if WITH_EDITOR
@@ -34,42 +36,88 @@ void AEnemyBase::BeginPlay()
 	Super::BeginPlay();
 
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
+
 	HealthComponent->OnDeath.AddDynamic(this, &AEnemyBase::OnDeath);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnCapsuleOverlap);
+
+	// Disable UE's built-in movement input — we drive position directly in Tick
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 
 	SpawnDefaultController();
 
-	// Pick an initial direction
+	// Pick initial direction and start moving
 	CurrentDirection = PickRandomUnblockedDirection();
-
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::OnCapsuleOverlap);
+	StartMovingToNextTile();
 }
 
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ApplyCornerRounding(DeltaTime);
+	if (!bMovingToTile || !Grid) return;
 
-	DirectionChangeTimer += DeltaTime;
-	if (DirectionChangeTimer >= DirectionChangeInterval)
+	FVector Current = GetActorLocation();
+	FVector Dir = (TargetWorldPos - Current);
+	float DistRemaining = Dir.Size2D();
+
+	// Snap to tile when close enough, then decide next move
+	if (DistRemaining <= 2.f)
 	{
-		DirectionChangeTimer = 0.f;
-		UpdateMovement();
+		FVector Snapped = TargetWorldPos;
+		Snapped.Z = Current.Z;
+		SetActorLocation(Snapped);
+		bMovingToTile = false;
+
+		OnTileReached();
+		StartMovingToNextTile();
+		return;
 	}
 
-	if (!CurrentDirection.IsZero())
+	// Move toward target
+	FVector MoveDir = Dir.GetSafeNormal2D();
+	AddMovementInput(MoveDir, 1.f);
+
+	// Update arrow to face movement direction
+	if (!MoveDir.IsZero())
 	{
-		AddMovementInput(FVector(CurrentDirection.X, CurrentDirection.Y, 0.f));
+		DirectionArrow->SetWorldRotation(MoveDir.Rotation());
 	}
 }
 
-void AEnemyBase::UpdateMovement()
+void AEnemyBase::OnTileReached()
 {
+	// Base: pick a new random direction if current one is blocked, otherwise keep going
 	if (IsDirectionBlocked(CurrentDirection))
 	{
 		CurrentDirection = PickRandomUnblockedDirection();
 	}
+}
+
+void AEnemyBase::StartMovingToNextTile()
+{
+	if (!Grid || CurrentDirection.IsZero())
+	{
+		// Try to unstick
+		CurrentDirection = PickRandomUnblockedDirection();
+		if (CurrentDirection.IsZero()) return;
+	}
+
+	FVector2D GridPos = Grid->GetGridPositionFromWorld(GetActorLocation());
+	int32 NX = FMath::RoundToInt(GridPos.X + CurrentDirection.X);
+	int32 NY = FMath::RoundToInt(GridPos.Y + CurrentDirection.Y);
+
+	if (IsDirectionBlocked(CurrentDirection))
+	{
+		CurrentDirection = PickRandomUnblockedDirection();
+		if (CurrentDirection.IsZero()) return;
+
+		NX = FMath::RoundToInt(GridPos.X + CurrentDirection.X);
+		NY = FMath::RoundToInt(GridPos.Y + CurrentDirection.Y);
+	}
+
+	TargetWorldPos = Grid->GetTileWorldPosition(NX, NY);
+	TargetWorldPos.Z = GetActorLocation().Z;
+	bMovingToTile = true;
 }
 
 FVector2D AEnemyBase::PickRandomUnblockedDirection() const
@@ -125,45 +173,6 @@ void AEnemyBase::OnDeath()
 	}
 
 	Destroy();
-}
-
-void AEnemyBase::ApplyCornerRounding(float DeltaTime)
-{
-	// https://www.construct.net/en/forum/game-development/game-development-design-ideas-25/bomberman-mechanics-ai-128684
-	// https://www.gamedev.net/forums/topic/622051-ai-for-simple-bomberman-game/
-
-	if (!Grid) return;
-
-	FVector Pos = GetActorLocation();
-	FVector2D GridPos = Grid->GetGridPositionFromWorld(Pos);
-	FVector TileCenter = Grid->GetTileWorldPosition(
-		FMath::RoundToInt(GridPos.X),
-		FMath::RoundToInt(GridPos.Y)
-	);
-
-	FVector Vel = GetCharacterMovement()->Velocity;
-	bool bMovingX = FMath::Abs(Vel.X) > FMath::Abs(Vel.Y);
-
-	if (bMovingX)
-	{
-		float DeltaY = TileCenter.Y - Pos.Y;
-		if (FMath::Abs(DeltaY) > 1.f)
-		{
-			FVector NewPos = Pos;
-			NewPos.Y += DeltaY * CornerRoundingStrength * DeltaTime;
-			SetActorLocation(NewPos);
-		}
-	}
-	else
-	{
-		float DeltaX = TileCenter.X - Pos.X;
-		if (FMath::Abs(DeltaX) > 1.f)
-		{
-			FVector NewPos = Pos;
-			NewPos.X += DeltaX * CornerRoundingStrength * DeltaTime;
-			SetActorLocation(NewPos);
-		}
-	}
 }
 
 void AEnemyBase::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

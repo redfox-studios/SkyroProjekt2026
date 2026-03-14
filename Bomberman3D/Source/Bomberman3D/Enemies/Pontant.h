@@ -16,7 +16,7 @@ public:
 	APontant();
 
 protected:
-	virtual void UpdateMovement() override;
+	virtual void OnTileReached() override;
 
 private:
 	void ChasePlayer();
