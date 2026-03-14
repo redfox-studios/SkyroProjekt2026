@@ -172,18 +172,17 @@ void ABombermanGameMode::SpawnEnemies()
 {
 	if (!DefaultEnemyClass || !Grid || !BombermanGameState) return;
 
-	// Collect valid spawn tiles - must be empty, not near player spawn (1,1)
 	TArray<FVector2D> ValidTiles;
+
+	int32 SafeZone = Grid->GetPlayerSafeZone();
+	FVector2D SpawnTile = Grid->GetPlayerSpawnTile();
 
 	for (int32 X = 1; X < Grid->GetGridHeight() - 1; X++)
 	{
 		for (int32 Y = 1; Y < Grid->GetGridWidth() - 1; Y++)
 		{
 			if (Grid->GetTileContent(X, Y) != ETileContent::Empty) continue;
-
-			// Keep enemies away from player spawn
-			int32 SafeZone = Grid->GetPlayerSafeZone();
-			if (FMath::Abs(X - 1) <= SafeZone && FMath::Abs(Y - 1) <= SafeZone) continue;
+			if (FMath::Abs(X - SpawnTile.X) <= SafeZone && FMath::Abs(Y - SpawnTile.Y) <= SafeZone) continue;
 
 			ValidTiles.Add(FVector2D(X, Y));
 		}
@@ -243,7 +242,7 @@ void ABombermanGameMode::OnStageTimerExpired()
 {
 	if (!Grid || !PontantClass || !BombermanGameState) return;
 
-	for (int32 i = 0; i < 10; i++)
+	for (int32 i = 0; i < EnemyRushCount; i++)
 	{
 		// pick a random empty tile
 		TArray<FVector2D> ValidTiles;
@@ -333,14 +332,11 @@ void ABombermanGameMode::StageClear()
 		}
 	}
 
-	FTimerHandle StageClearDelay;
-	GetWorld()->GetTimerManager().SetTimer(
-		StageClearDelay,
-		this,
-		&ABombermanGameMode::LoadNextStage,
-		3.f,
-		false
-	);
+	// FTimerHandle StageClearDelay;
+	// GetWorld()->GetTimerManager().SetTimer(StageClearDelay, this, &ABombermanGameMode::LoadNextStage, 3.f, false);
+
+	FTimerHandle StageClearDelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(StageClearDelayHandle, this, &ABombermanGameMode::LoadNextStage, StageClearDelay, false);
 }
 
 void ABombermanGameMode::AddScore(int32 Points)

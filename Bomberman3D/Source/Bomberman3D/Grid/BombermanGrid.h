@@ -130,6 +130,8 @@ public:
 	// Returns player spawn position in world space (top-left safe zone)
 	FVector GetPlayerSpawnPosition() const;
 
+	FVector2D GetPlayerSpawnTile() const { return FVector2D(1, 1); }
+
 	// Debug
 	UPROPERTY(EditAnywhere, Category = "Grid Debug")
 	bool bDrawDebug = false;

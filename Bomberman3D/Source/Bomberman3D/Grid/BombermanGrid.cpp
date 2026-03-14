@@ -111,8 +111,13 @@ void ABombermanGrid::GenerateSoftBlocks()
 
 	// Player spawns at top-left interior tile (1,1)
 	// Safe zone: no soft blocks within PlayerSafeZone tiles of spawn
-	const int32 SpawnX = 1;
-	const int32 SpawnY = 1;
+	const FVector2D SpawnTile = GetPlayerSpawnTile();
+	const int32 SpawnX = FMath::RoundToInt(SpawnTile.X);
+	const int32 SpawnY = FMath::RoundToInt(SpawnTile.Y);
+
+	// old
+	//const int32 SpawnX = 1;
+	//const int32 SpawnY = 1;
 
 	for (int32 X = 1; X < BaseGridHeight - 1; X++)
 	{

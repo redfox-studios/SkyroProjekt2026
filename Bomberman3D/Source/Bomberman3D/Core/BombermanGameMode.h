@@ -62,6 +62,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Debug")
 	bool bShowDebugInfo = true; // toggle this off before building
 
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	int32 EnemyRushCount = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
+	float StageClearDelay = 3.f;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();
