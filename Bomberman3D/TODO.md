@@ -51,7 +51,7 @@
 - [x] Win condition (all enemies dead -> door active -> player enters door)
 - [x] Lose condition (game over screen with restart button)
 - [x] Level reload on stage clear
-- [x] Stage timer expire -> Enemy Rush (spawn 10 Pontants) - stub exists
+- [x] Stage timer expire -> Enemy Rush (spawn 10 Pontants)
 - [x] Score system
 
 ### Enemies
@@ -72,8 +72,8 @@
 - [x] Procedural soft block placement (skip player spawn zone)
 - [x] Door hidden under random soft block
 - [x] Flood-fill check (guarantee door is always reachable)
-- [x] Upgrades hidden under random soft blocks (BombUp, FireUp)
-- [ ] Data Table setup (enemy types, upgrades, timer per stage)
+- [x] Upgrades hidden under random soft blocks (BombUp, FireUp, SpeedUp)
+- [x] Data Table setup (enemy types, count, timer per stage)
 - [x] Grid growth (every X stages, grid grows by 1 in each direction)
 
 ### Upgrades & Items
@@ -111,21 +111,24 @@
 - [ ] NavMesh setup for pathfinding enemies
 - [ ] Separate NavMesh config for soft-block-passthrough enemies
 - [ ] Dynamic NavMesh rebuild on soft block destruction <- test performance early
+- [x] Tile occupancy (max one enemy per tile)
+- [x] Corner rounding logic for enemies
 
 ### VFX & Sound
-- [ ] Explosion VFX
+- [x] Explosion VFX support
 - [ ] Soft block destroy VFX
-- [ ] Upgrade pickup VFX
+- [x] Upgrade pickup VFX support
 - [ ] Background music
-- [ ] SFX (bomb place, explosion, pickup, death, stage clear)
+- [x] SFX support (bomb place, explosion, pickup, death, enter door)
+- [ ] Actual VFX/SFX assets (designer work)
 
 ---
 
 ## Phase 4 - Polish
 
 ### UI
-- [x] Main Menu (New Game, Continue, Settings, Credits, Quit)
-- [x] Pause Menu (Resume, Restart Stage, Main Menu)
+- [x] Main Menu (New Game, Continue, Quit)
+- [x] Pause Menu (Resume, Save and Quit, Save and go to Main Menu)
 - [x] Game Over screen
 - [x] Stage Clear screen
 - [ ] Loading Screen
@@ -135,9 +138,6 @@
 ### Final
 - [ ] Full bugfix pass
 - [ ] Local co-op/versus (if time allows)
-
-### Movement
-- [ ] Corner rounding logic for enemies
 
 ---
 
