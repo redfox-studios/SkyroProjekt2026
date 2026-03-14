@@ -52,10 +52,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	int32 PlayerSafeZone = 2;
 
-	// 0.0 - 1.0, how dense soft blocks are
-	UPROPERTY(EditAnywhere, Category = "Grid Config")
-	float SoftBlockDensity = 0.65f;
-
 	// Actor classes - assign in editor
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> HardBlockClass;
@@ -120,6 +116,10 @@ public:
 	// 0.0 - 1.0, how many soft blocks hide an upgrade
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float UpgradeDensity = 0.2f;
+
+	// 0.0 - 1.0, how dense soft blocks are
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	float SoftBlockDensity = 0.65f;
 
 	TArray<TArray<TSubclassOf<AActor>>> UpgradeMap;
 

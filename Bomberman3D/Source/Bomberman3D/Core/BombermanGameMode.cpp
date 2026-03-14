@@ -124,6 +124,8 @@ void ABombermanGameMode::StartStage()
 		{
 			CurrentStageEnemies = Config->Enemies;
 			StageTimerDuration = Config->StageTimer;
+			Grid->SoftBlockDensity = Config->SoftBlockDensity;
+			Grid->UpgradeDensity = Config->UpgradeDensity;
 		}
 	}
 

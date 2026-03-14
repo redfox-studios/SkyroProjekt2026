@@ -29,4 +29,10 @@ struct FBombermanStageConfig : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float StageTimer = 200.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SoftBlockDensity = 0.65f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float UpgradeDensity = 0.2f;
 };
