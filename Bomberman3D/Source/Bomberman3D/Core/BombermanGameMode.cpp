@@ -304,23 +304,23 @@ void ABombermanGameMode::StageClear()
 		{
 			PS->AddScore(FMath::RoundToInt(BombermanGameState->StageTimeRemaining) * 10);
 
-			PS->Upgrades.SpeedUp = 0;
-			PS->Upgrades.bRemoteControl = false;
-			PS->Upgrades.bWallPass = false;
-			PS->Upgrades.bBombPass = false;
-			PS->Upgrades.bFlamePass = false;
-			PS->Upgrades.bInvincible = false;
-			It->SetWallPass(false);
-			It->GetCharacterMovement()->MaxWalkSpeed = It->BaseSpeed;
-
 			if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 			{
 				GI->CurrentStage = BombermanGameState->CurrentStage + 1;
 				GI->Lives = PS->Lives;
-				GI->Upgrades = PS->Upgrades;
+				GI->Upgrades = PS->Upgrades; // save BEFORE reset
 				GI->Score = PS->GetScore();
 				GI->SaveGame();
 			}
+
+			// PS->Upgrades.SpeedUp = 0;
+			// PS->Upgrades.bRemoteControl = false;
+			// PS->Upgrades.bWallPass = false;
+			// PS->Upgrades.bBombPass = false;
+			// PS->Upgrades.bFlamePass = false;
+			// PS->Upgrades.bInvincible = false;
+			// It->SetWallPass(false);
+			// It->GetCharacterMovement()->MaxWalkSpeed = It->BaseSpeed;
 		}
 		break;
 	}
