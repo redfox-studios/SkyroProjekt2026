@@ -38,7 +38,18 @@ void ABombermanBomb::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bCollisionEnabled || !OwnerCharacter || !Grid) return;
+	if (bCollisionEnabled || !Grid) return;
+
+	// ff owner has BombPass -> never enable collision
+	if (OwnerCharacter)
+	{
+		if (ABombermanPlayerState* PS = OwnerCharacter->GetPlayerState<ABombermanPlayerState>())
+		{
+			if (PS->Upgrades.bBombPass) return;
+		}
+	}
+
+	if (!OwnerCharacter) return;
 
 	FVector2D PlayerTile = Grid->GetGridPositionFromWorld(OwnerCharacter->GetActorLocation());
 	FVector2D BombTile = Grid->GetGridPositionFromWorld(GetActorLocation());

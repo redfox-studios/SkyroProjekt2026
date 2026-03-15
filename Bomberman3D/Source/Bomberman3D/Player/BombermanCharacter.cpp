@@ -65,6 +65,9 @@ void ABombermanCharacter::BeginPlay()
 			{
 				if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 				{
+					UE_LOG(LogTemp, Warning, TEXT("GI state: Lives=%d BombUp=%d FireUp=%d SpeedUp=%d"),
+						GI->Lives, GI->Upgrades.BombUp, GI->Upgrades.FireUp, GI->Upgrades.SpeedUp);
+
 					PS->Lives = GI->Lives;
 					PS->Upgrades = GI->Upgrades;
 					PS->SetScore(GI->Score);
@@ -123,12 +126,12 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	if (CurrentTile != ETileContent::Empty && CurrentTile != ETileContent::Bomb && CurrentTile != ETileContent::SoftBlock) return;
 	if (CurrentTile == ETileContent::SoftBlock && (!PS || !PS->Upgrades.bWallPass)) return;
 
+	if (PS && ActiveBombCount >= PS->GetBombCount()) return;
+
 	if (CurrentTile == ETileContent::SoftBlock)
 	{
 		Grid->DestroyActorOnTile(GX, GY);
 	}
-
-	if (PS && ActiveBombCount >= PS->GetBombCount()) return;
 
 	FVector WorldPos = Grid->GetTileWorldPosition(GX, GY);
 	ABombermanBomb* Bomb = GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPos, FRotator::ZeroRotator);
