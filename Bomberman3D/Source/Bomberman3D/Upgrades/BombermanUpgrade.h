@@ -6,18 +6,20 @@
 #include "GameFramework/Actor.h"
 #include "BombermanUpgrade.generated.h"
 
+// clang-format off
 UENUM(BlueprintType)
 enum class EUpgradeType : uint8
 {
-	BombUp UMETA(DisplayName = "Bomb Up"),
-	FireUp UMETA(DisplayName = "Fire Up"),
-	SpeedUp UMETA(DisplayName = "Speed Up"),
-	Invincible UMETA(DisplayName = "Invincible"),
-	WallPass UMETA(DisplayName = "Wall Pass"),
-	BombPass UMETA(DisplayName = "Bomb Pass"),
-	FlamePass UMETA(DisplayName = "Flame Pass"),
-	RemoteControl UMETA(DisplayName = "Remote Control")
+	BombUp			UMETA(DisplayName = "Bomb Up"),
+	FireUp			UMETA(DisplayName = "Fire Up"),
+	SpeedUp			UMETA(DisplayName = "Speed Up"),
+	Invincible		UMETA(DisplayName = "Invincible"),
+	WallPass		UMETA(DisplayName = "Wall Pass"),
+	BombPass		UMETA(DisplayName = "Bomb Pass"),
+	FlamePass		UMETA(DisplayName = "Flame Pass"),
+	RemoteControl	UMETA(DisplayName = "Remote Control")
 };
+// clang-format on
 
 UCLASS()
 

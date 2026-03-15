@@ -16,15 +16,17 @@
 // Explosion:  actual explosion logic runs
 // Cleanup:    free timer, destroy actor
 
+// clang-format off
 UENUM(BlueprintType)
 enum class EBombState : uint8
 {
-	Placed UMETA(DisplayName = "Placed"),
-	Armed UMETA(DisplayName = "Armed"),
-	Detonating UMETA(DisplayName = "Detonating"),
-	Explosion UMETA(DisplayName = "Explosion"),
-	Cleanup UMETA(DisplayName = "Cleanup")
+	Placed		UMETA(DisplayName = "Placed"),
+	Armed		UMETA(DisplayName = "Armed"),
+	Detonating	UMETA(DisplayName = "Detonating"),
+	Explosion	UMETA(DisplayName = "Explosion"),
+	Cleanup		UMETA(DisplayName = "Cleanup")
 };
+// clang-format on
 
 class ABombermanGrid;
 
