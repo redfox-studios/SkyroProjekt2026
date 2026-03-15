@@ -7,6 +7,7 @@
 #include "Components/BombermanHealthComponent.h"
 #include "EngineUtils.h"
 #include "Particles/ParticleSystem.h"
+#include "Player/BombermanPlayerState.h"
 
 ABombermanBomb::ABombermanBomb()
 {
@@ -176,11 +177,14 @@ void ABombermanBomb::DamageActorsOnTile(int32 X, int32 Y)
 	{
 		if (!Actor) continue;
 
-		UBombermanHealthComponent* Health = Actor->FindComponentByClass<UBombermanHealthComponent>();
-		if (Health)
+		if (Actor == OwnerCharacter)
 		{
-			Health->TakeDamage(1.f);
+			ABombermanPlayerState* PS = OwnerCharacter->GetPlayerState<ABombermanPlayerState>();
+			if (PS && PS->Upgrades.bFlamePass) continue;
 		}
+
+		UBombermanHealthComponent* Health = Actor->FindComponentByClass<UBombermanHealthComponent>();
+		if (Health) Health->TakeDamage(1.f);
 	}
 }
 

@@ -35,6 +35,8 @@ public:
 	// virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void SetWallPass(bool bEnabled);
+
 	// --- input actions ---
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -42,6 +44,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* PlaceBombAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* DetonateBombAction;
 
 	// --- camera ---
 
@@ -95,6 +100,7 @@ public:
 private:
 	void Move(const FInputActionValue& Value);
 	void PlaceBomb(const FInputActionValue& Value);
+	void DetonateBomb(const FInputActionValue& Value);
 
 	// Tracks how many bombs are currently live in the world
 	int32 ActiveBombCount = 0;
@@ -106,4 +112,6 @@ private:
 	void OnDeath();
 
 	FTimerHandle InvincibilityTimerHandle;
+
+	TArray<ABombermanBomb*> ActiveBombs;
 };

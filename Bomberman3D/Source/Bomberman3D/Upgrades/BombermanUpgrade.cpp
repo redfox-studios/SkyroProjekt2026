@@ -66,6 +66,22 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 				}, 30.f, false);
 		}
 		break;
+	case EUpgradeType::WallPass:
+		PS->Upgrades.bWallPass = true;
+		Player->SetWallPass(true);
+		break;
+
+	case EUpgradeType::BombPass:
+		PS->Upgrades.bBombPass = true;
+		break;
+
+	case EUpgradeType::FlamePass:
+		PS->Upgrades.bFlamePass = true;
+		break;
+
+	case EUpgradeType::RemoteControl:
+		PS->Upgrades.bRemoteControl = true;
+		break;
 	}
 
 	if (PickupVFX)

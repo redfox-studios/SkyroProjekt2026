@@ -116,6 +116,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> InvincibleClass;
 
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> WallPassClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> BombPassClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> FlamePassClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> RemoteControlClass;
+
 	// 0.0 - 1.0, how many soft blocks hide an upgrade
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	float UpgradeDensity = 0.2f;

@@ -383,11 +383,15 @@ void ABombermanGrid::PlaceUpgrades()
 			if (FMath::FRand() <= UpgradeDensity)
 			{
 				TSubclassOf<AActor> UpgradeClass;
-				int32 Roll = FMath::RandRange(0, 3);
+				int32 Roll = FMath::RandRange(0, 7);
 				if (Roll == 0) UpgradeClass = BombUpClass;
 				else if (Roll == 1) UpgradeClass = FireUpClass;
 				else if (Roll == 2) UpgradeClass = SpeedUpClass;
-				else UpgradeClass = InvincibleClass;
+				else if (Roll == 3) UpgradeClass = InvincibleClass;
+				else if (Roll == 4) UpgradeClass = WallPassClass;
+				else if (Roll == 5) UpgradeClass = BombPassClass;
+				else if (Roll == 6) UpgradeClass = FlamePassClass;
+				else UpgradeClass = RemoteControlClass;
 
 				if (UpgradeClass)
 				{

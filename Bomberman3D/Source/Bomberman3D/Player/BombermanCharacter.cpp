@@ -74,6 +74,7 @@ void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABombermanCharacter::Move);
 		EnhancedInput->BindAction(PlaceBombAction, ETriggerEvent::Started, this, &ABombermanCharacter::PlaceBomb);
+		EnhancedInput->BindAction(DetonateBombAction, ETriggerEvent::Started, this, &ABombermanCharacter::DetonateBomb);
 	}
 }
 
@@ -102,29 +103,26 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	int32 GX = FMath::RoundToInt(GridPos.X);
 	int32 GY = FMath::RoundToInt(GridPos.Y);
 
-	if (Grid->GetTileContent(GX, GY) != ETileContent::Empty) return;
+	ETileContent CurrentTile = Grid->GetTileContent(GX, GY);
+	if (CurrentTile == ETileContent::Bomb) return;
+	if (CurrentTile != ETileContent::Empty && (!PS || !PS->Upgrades.bBombPass)) return;
+
 	if (PS && ActiveBombCount >= PS->GetBombCount()) return;
 
 	FVector WorldPos = Grid->GetTileWorldPosition(GX, GY);
-
 	ABombermanBomb* Bomb = GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPos, FRotator::ZeroRotator);
 	if (!Bomb) return;
 
 	if (PlaceBombSound)
-	{
 		UGameplayStatics::PlaySoundAtLocation(this, PlaceBombSound, GetActorLocation());
-	}
 
 	Bomb->OwnerCharacter = this;
-
-	if (PS)
-	{
-		Bomb->BlastRadius = PS->GetBlastRadius();
-	}
+	if (PS) Bomb->BlastRadius = PS->GetBlastRadius();
 
 	Grid->SetTileContent(GX, GY, ETileContent::Bomb);
 	ActiveBombCount++;
 
+	ActiveBombs.Add(Bomb);
 	Bomb->OnDestroyed.AddDynamic(this, &ABombermanCharacter::OnBombDestroyed);
 
 	UE_LOG(LogTemp, Warning, TEXT("Bomb placed at [%d, %d]"), GX, GY);
@@ -133,6 +131,7 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 void ABombermanCharacter::OnBombDestroyed(AActor* DestroyedActor)
 {
 	ActiveBombCount = FMath::Max(0, ActiveBombCount - 1);
+	ActiveBombs.Remove(Cast<ABombermanBomb>(DestroyedActor));
 }
 
 void ABombermanCharacter::OnDeath()
@@ -153,6 +152,7 @@ void ABombermanCharacter::OnDeath()
 	PS->Upgrades.bFlamePass = false;
 	PS->Upgrades.bInvincible = false;
 	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	SetWallPass(false);
 
 	UE_LOG(LogTemp, Warning, TEXT("Player died. Lives remaining: %d"), PS->Lives);
 
@@ -188,4 +188,21 @@ FVector2D ABombermanCharacter::GetCurrentGridPosition() const
 		return Grid->GetGridPositionFromWorld(GetActorLocation());
 
 	return FVector2D::ZeroVector;
+}
+
+void ABombermanCharacter::DetonateBomb(const FInputActionValue& Value)
+{
+	ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>();
+	if (!PS || !PS->Upgrades.bRemoteControl) return;
+
+	if (ActiveBombs.Num() == 0) return;
+
+	ABombermanBomb* Oldest = ActiveBombs[0];
+	if (Oldest) Oldest->Detonate();
+}
+
+void ABombermanCharacter::SetWallPass(bool bEnabled)
+{
+	ECollisionResponse Response = bEnabled ? ECR_Ignore : ECR_Block;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, Response);
 }
