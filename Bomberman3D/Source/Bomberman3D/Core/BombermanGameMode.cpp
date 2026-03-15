@@ -58,12 +58,15 @@ void ABombermanGameMode::Tick(float DeltaTime)
 				(int32)PS->GetScore()));
 
 		GEngine->AddOnScreenDebugMessage(2, 0.f, FColor::Green,
-			FString::Printf(TEXT("BombUp: %d | FireUp: %d | SpeedUp: %d | Invincible: %d | WallPass: %d"),
+			FString::Printf(TEXT("BombUp: %d | FireUp: %d | SpeedUp: %d | Invincible: %d | WallPass: %d | BombPass: %d | FlamePass: %d | RemoteControl: %d"),
 				PS->Upgrades.BombUp,
 				PS->Upgrades.FireUp,
 				PS->Upgrades.SpeedUp,
 				PS->Upgrades.bInvincible,
-				PS->Upgrades.bWallPass
+				PS->Upgrades.bWallPass,
+				PS->Upgrades.bBombPass,
+				PS->Upgrades.bFlamePass,
+				PS->Upgrades.bRemoteControl
 			));
 	}
 }
