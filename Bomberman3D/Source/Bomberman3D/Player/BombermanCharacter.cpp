@@ -12,6 +12,8 @@
 #include "Player/BombermanPlayerState.h"
 #include "Core/BombermanGameMode.h"
 
+#include "Bomberman3D.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 
 ABombermanCharacter::ABombermanCharacter()
@@ -204,5 +206,5 @@ void ABombermanCharacter::DetonateBomb(const FInputActionValue& Value)
 void ABombermanCharacter::SetWallPass(bool bEnabled)
 {
 	ECollisionResponse Response = bEnabled ? ECR_Ignore : ECR_Block;
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, Response);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_SoftBlock, Response);
 }
