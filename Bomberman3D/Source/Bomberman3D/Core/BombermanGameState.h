@@ -9,18 +9,19 @@
 UENUM(BlueprintType)
 enum class EStageState : uint8
 {
-	WaitingToStart  UMETA(DisplayName = "Waiting To Start"),
-	InProgress      UMETA(DisplayName = "In Progress"),
-	StageClear      UMETA(DisplayName = "Stage Clear"),
-	GameOver        UMETA(DisplayName = "Game Over")
+	WaitingToStart UMETA(DisplayName = "Waiting To Start"),
+	InProgress UMETA(DisplayName = "In Progress"),
+	StageClear UMETA(DisplayName = "Stage Clear"),
+	GameOver UMETA(DisplayName = "Game Over")
 };
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	UPROPERTY(BlueprintReadOnly, Category = "Stage")
 	EStageState StageState = EStageState::WaitingToStart;
 

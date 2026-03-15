@@ -7,10 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Enemies/EnemyBase.h"
 
-ABombermanGrid::ABombermanGrid()
-{
-	PrimaryActorTick.bCanEverTick = true;
-}
+ABombermanGrid::ABombermanGrid() { PrimaryActorTick.bCanEverTick = true; }
 
 void ABombermanGrid::BeginPlay()
 {
@@ -42,12 +39,13 @@ void ABombermanGrid::Tick(float DeltaTime)
 	{
 		for (int32 Y = 0; Y < BaseGridWidth; Y++)
 		{
-			FVector Center = GetTileWorldPosition(X, Y)/* + FVector(0, 0, 50.f) */;
-			FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red :
-				Data[X][Y] == ETileContent::SoftBlock ? FColor::Green :
-				Data[X][Y] == ETileContent::Bomb ? FColor::Yellow :
-				Data[X][Y] == ETileContent::Door ? FColor::Blue :
-				FColor::White;
+			FVector Center = GetTileWorldPosition(X, Y) /* + FVector(0, 0, 50.f) */
+				;
+			FColor Color = Data[X][Y] == ETileContent::HardBlock ? FColor::Red
+				: Data[X][Y] == ETileContent::SoftBlock			 ? FColor::Green
+				: Data[X][Y] == ETileContent::Bomb				 ? FColor::Yellow
+				: Data[X][Y] == ETileContent::Door				 ? FColor::Blue
+																 : FColor::White;
 			DrawDebugBox(GetWorld(), Center, FVector(TileSize * 0.45f), Color, false, -1.f, 0, 2.f);
 		}
 	}
@@ -203,8 +201,7 @@ bool ABombermanGrid::IsDoorReachable(int32 DoorX, int32 DoorY) const
 		int32 TX = FMath::RoundToInt(Tile.X);
 		int32 TY = FMath::RoundToInt(Tile.Y);
 
-		if ((FMath::Abs(TX - DoorX) == 1 && TY == DoorY) ||
-			(FMath::Abs(TY - DoorY) == 1 && TX == DoorX))
+		if ((FMath::Abs(TX - DoorX) == 1 && TY == DoorY) || (FMath::Abs(TY - DoorY) == 1 && TX == DoorX))
 		{
 			return true;
 		}
@@ -223,10 +220,7 @@ TArray<FVector2D> ABombermanGrid::FloodFill(int32 StartX, int32 StartY) const
 	Queue.Enqueue(Start);
 	VisitedSet.Add(Start);
 
-	const FVector2D Dirs[] = {
-		FVector2D(1, 0), FVector2D(-1, 0),
-		FVector2D(0, 1), FVector2D(0, -1)
-	};
+	const FVector2D Dirs[] = { FVector2D(1, 0), FVector2D(-1, 0), FVector2D(0, 1), FVector2D(0, -1) };
 
 	while (!Queue.IsEmpty())
 	{
@@ -255,30 +249,21 @@ TArray<FVector2D> ABombermanGrid::FloodFill(int32 StartX, int32 StartY) const
 }
 
 // isinbounds credits to: https://github.com/kubgus
-bool ABombermanGrid::IsInBounds(int32 X, int32 Y) const
-{
-	return X >= 0 && X < BaseGridHeight && Y >= 0 && Y < BaseGridWidth;
-}
+bool ABombermanGrid::IsInBounds(int32 X, int32 Y) const { return X >= 0 && X < BaseGridHeight && Y >= 0 && Y < BaseGridWidth; }
 
 bool ABombermanGrid::IsTileWalkable(int32 X, int32 Y) const
 {
 	if (!IsInBounds(X, Y)) return false;
 
 	ETileContent Tile = Data[X][Y];
-	return Tile != ETileContent::SoftBlock &&
-		Tile != ETileContent::HardBlock &&
-		Tile != ETileContent::Bomb;
+	return Tile != ETileContent::SoftBlock && Tile != ETileContent::HardBlock && Tile != ETileContent::Bomb;
 }
 
-FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const
-{
-	return GetActorLocation() + FVector(X * TileSize, Y * TileSize, TileSize * 0.5f);
-}
+FVector ABombermanGrid::GetTileWorldPosition(int32 X, int32 Y) const { return GetActorLocation() + FVector(X * TileSize, Y * TileSize, TileSize * 0.5f); }
 
 ETileContent ABombermanGrid::GetTileContent(int32 X, int32 Y) const
 {
-	if (!IsInBounds(X, Y))
-		return ETileContent::HardBlock;
+	if (!IsInBounds(X, Y)) return ETileContent::HardBlock;
 
 	return Data[X][Y];
 }
@@ -298,10 +283,7 @@ bool ABombermanGrid::IsTileSoft(int32 X, int32 Y) const
 FVector2D ABombermanGrid::GetGridPositionFromWorld(FVector WorldLocation) const
 {
 	FVector LocalPos = WorldLocation - GetActorLocation();
-	return FVector2D(
-		FMath::RoundToInt(LocalPos.X / TileSize),
-		FMath::RoundToInt(LocalPos.Y / TileSize)
-	);
+	return FVector2D(FMath::RoundToInt(LocalPos.X / TileSize), FMath::RoundToInt(LocalPos.Y / TileSize));
 }
 
 FVector ABombermanGrid::GetPlayerSpawnPosition() const
@@ -383,10 +365,15 @@ void ABombermanGrid::PlaceUpgrades()
 			if (FMath::FRand() <= UpgradeDensity)
 			{
 				TSubclassOf<AActor> UpgradeClass;
-				int32 Roll = FMath::RandRange(0, 2);
+				int32 Roll = FMath::RandRange(0, 7);
 				if (Roll == 0) UpgradeClass = BombUpClass;
 				else if (Roll == 1) UpgradeClass = FireUpClass;
-				else UpgradeClass = SpeedUpClass;
+				else if (Roll == 2) UpgradeClass = SpeedUpClass;
+				else if (Roll == 3) UpgradeClass = InvincibleClass;
+				else if (Roll == 4) UpgradeClass = WallPassClass;
+				else if (Roll == 5) UpgradeClass = BombPassClass;
+				else if (Roll == 6) UpgradeClass = FlamePassClass;
+				else UpgradeClass = RemoteControlClass;
 
 				if (UpgradeClass)
 				{
@@ -406,34 +393,15 @@ bool ABombermanGrid::IsTileOccupiedByEnemy(int32 X, int32 Y) const
 	float HalfTile = TileSize * 0.5f;
 
 	TArray<AActor*> OverlappingActors;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
-		UEngineTypes::ConvertToObjectType(ECC_Pawn)
-	};
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = { UEngineTypes::ConvertToObjectType(ECC_Pawn) };
 
-	UKismetSystemLibrary::BoxOverlapActors(
-		GetWorld(),
-		TileWorld,
-		FVector(HalfTile * 0.6f),
-		ObjectTypes,
-		AEnemyBase::StaticClass(),
-		TArray<AActor*>{},
-		OverlappingActors
-	);
+	UKismetSystemLibrary::BoxOverlapActors(GetWorld(), TileWorld, FVector(HalfTile * 0.6f), ObjectTypes, AEnemyBase::StaticClass(), TArray<AActor*>{}, OverlappingActors);
 
 	return OverlappingActors.Num() > 0;
 }
 
-void ABombermanGrid::ReserveTile(int32 X, int32 Y)
-{
-	ReservedTiles.Add(FIntPoint(X, Y));
-}
+void ABombermanGrid::ReserveTile(int32 X, int32 Y) { ReservedTiles.Add(FIntPoint(X, Y)); }
 
-void ABombermanGrid::ReleaseTile(int32 X, int32 Y)
-{
-	ReservedTiles.Remove(FIntPoint(X, Y));
-}
+void ABombermanGrid::ReleaseTile(int32 X, int32 Y) { ReservedTiles.Remove(FIntPoint(X, Y)); }
 
-bool ABombermanGrid::IsTileReserved(int32 X, int32 Y) const
-{
-	return ReservedTiles.Contains(FIntPoint(X, Y));
-}
+bool ABombermanGrid::IsTileReserved(int32 X, int32 Y) const { return ReservedTiles.Contains(FIntPoint(X, Y)); }

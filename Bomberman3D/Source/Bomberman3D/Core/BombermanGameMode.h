@@ -14,18 +14,19 @@ class ABombermanGameState;
 class ABombermanPlayerState;
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanGameMode();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public:
+  public:
 	// Called by BombermanCharacter when player runs out of lives
 	void OnGameOver();
 
@@ -71,7 +72,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	float StageClearDelay = 3.f;
 
-private:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> LoadingScreenWidgetClass;
+
+  private:
 	void StartStage();
 	void OnStageTimerTick();
 	void OnStageTimerExpired();

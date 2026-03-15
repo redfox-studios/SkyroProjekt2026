@@ -21,19 +21,22 @@
 class ABombermanGrid;
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanCharacter();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 
-public:
+  public:
 	// virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void SetWallPass(bool bEnabled);
 
 	// --- input actions ---
 
@@ -42,6 +45,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* PlaceBombAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* DetonateBombAction;
 
 	// --- camera ---
 
@@ -70,10 +76,10 @@ public:
 	FVector2D GetCurrentGridPosition() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float BaseSpeed = 400.f;
+	float BaseSpeed = 300.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float SpeedUpIncrement = 100.f; // per SpeedUp level
+	float SpeedUpIncrement = 50.f; // per SpeedUp level
 
 	float GetSpeedUpIncrement() const { return SpeedUpIncrement; }
 
@@ -92,9 +98,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 	UArrowComponent* DirectionArrow;
 
-private:
+  private:
 	void Move(const FInputActionValue& Value);
 	void PlaceBomb(const FInputActionValue& Value);
+	void DetonateBomb(const FInputActionValue& Value);
 
 	// Tracks how many bombs are currently live in the world
 	int32 ActiveBombCount = 0;
@@ -106,4 +113,6 @@ private:
 	void OnDeath();
 
 	FTimerHandle InvincibilityTimerHandle;
+
+	TArray<ABombermanBomb*> ActiveBombs;
 };

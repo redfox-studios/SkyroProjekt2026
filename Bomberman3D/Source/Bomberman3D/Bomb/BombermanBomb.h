@@ -16,31 +16,34 @@
 // Explosion:  actual explosion logic runs
 // Cleanup:    free timer, destroy actor
 
+// clang-format off
 UENUM(BlueprintType)
 enum class EBombState : uint8
 {
-	Placed      UMETA(DisplayName = "Placed"),
-	Armed       UMETA(DisplayName = "Armed"),
-	Detonating  UMETA(DisplayName = "Detonating"),
-	Explosion   UMETA(DisplayName = "Explosion"),
-	Cleanup     UMETA(DisplayName = "Cleanup")
+	Placed		UMETA(DisplayName = "Placed"),
+	Armed		UMETA(DisplayName = "Armed"),
+	Detonating	UMETA(DisplayName = "Detonating"),
+	Explosion	UMETA(DisplayName = "Explosion"),
+	Cleanup		UMETA(DisplayName = "Cleanup")
 };
+// clang-format on
 
 class ABombermanGrid;
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanBomb : public AActor
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanBomb();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public:
+  public:
 	UPROPERTY(EditDefaultsOnly, Category = "Bomb")
 	float FuseTimer = 2.5f;
 
@@ -70,7 +73,7 @@ public:
 	UFUNCTION()
 	void Detonate();
 
-private:
+  private:
 	void Explode();
 	void TriggerChainReaction(int32 X, int32 Y);
 	void DamageActorsOnTile(int32 X, int32 Y);

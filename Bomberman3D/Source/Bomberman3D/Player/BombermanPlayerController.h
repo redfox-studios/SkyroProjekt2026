@@ -17,14 +17,15 @@
  * 
  */
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
-	
-public:
+
+  public:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* DefaultMappingContext;
 

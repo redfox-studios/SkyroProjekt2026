@@ -8,11 +8,12 @@
 #include "BombermanGameInstance.generated.h"
 
 UCLASS()
+
 class BOMBERMAN3D_API UBombermanGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	// static constexpr int32 DefaultStage = 1;
 	// static constexpr int32 DefaultLives = 3;
 
@@ -36,6 +37,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadGame();
+
+	UFUNCTION(BlueprintCallable, Exec)
+	void SetStage(int32 Stage) { CurrentStage = Stage; }
+	// type in console 'SetStage 5' (where 5 is the desired stage number)
+	// and then type 'RestartLevel' to make changes
 
 	virtual void Init() override;
 };

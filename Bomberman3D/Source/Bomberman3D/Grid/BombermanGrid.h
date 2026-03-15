@@ -9,23 +9,24 @@
 UENUM(BlueprintType)
 enum class ETileContent : uint8
 {
-	Empty       UMETA(DisplayName = "Empty"),
-	SoftBlock   UMETA(DisplayName = "Soft Block"),
-	HardBlock   UMETA(DisplayName = "Hard Block"),
-	Bomb        UMETA(DisplayName = "Bomb"),
-	Upgrade     UMETA(DisplayName = "Upgrade"),
-	Door        UMETA(DisplayName = "Door")
+	Empty UMETA(DisplayName = "Empty"),
+	SoftBlock UMETA(DisplayName = "Soft Block"),
+	HardBlock UMETA(DisplayName = "Hard Block"),
+	Bomb UMETA(DisplayName = "Bomb"),
+	Upgrade UMETA(DisplayName = "Upgrade"),
+	Door UMETA(DisplayName = "Door")
 };
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanGrid : public AActor
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanGrid();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 
 	// --- config ---
@@ -62,7 +63,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> DoorClass;
 
-public:
+  public:
 	virtual void Tick(float DeltaTime) override;
 
 	// --- tile queries ---
@@ -89,8 +90,11 @@ public:
 	FVector2D GetGridPositionFromWorld(FVector WorldLocation) const;
 
 	int32 GetGridWidth() const { return BaseGridWidth; }
+
 	int32 GetGridHeight() const { return BaseGridHeight; }
+
 	int32 GetPlayerSafeZone() const { return PlayerSafeZone; }
+
 	bool IsTileOccupiedByEnemy(int32 X, int32 Y) const;
 
 	// --- actor spawning ---
@@ -112,6 +116,21 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
 	TSubclassOf<AActor> SpeedUpClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> InvincibleClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> WallPassClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> BombPassClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> FlamePassClass;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Config")
+	TSubclassOf<AActor> RemoteControlClass;
 
 	// 0.0 - 1.0, how many soft blocks hide an upgrade
 	UPROPERTY(EditAnywhere, Category = "Grid Config")
@@ -140,10 +159,10 @@ public:
 	void ReleaseTile(int32 X, int32 Y);
 	bool IsTileReserved(int32 X, int32 Y) const;
 
-private:
+  private:
 	TSet<FIntPoint> ReservedTiles;
 
-private:
+  private:
 	void InitGrid();
 	void PlaceHardWalls();
 	void GenerateSoftBlocks();

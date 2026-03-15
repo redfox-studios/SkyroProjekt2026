@@ -8,19 +8,20 @@
 
 // Onil: random movement, switches to pursuing player when within PursuitRange tiles.
 UCLASS()
+
 class BOMBERMAN3D_API AOnil : public AEnemyBase
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	AOnil();
 
-protected:
+  protected:
 	virtual void OnTileReached() override;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	float PursuitRange = 5.f; // in tiles
 
-private:
+  private:
 	void MoveTowardPlayer();
 };

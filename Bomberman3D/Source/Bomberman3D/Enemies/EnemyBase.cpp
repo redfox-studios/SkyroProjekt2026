@@ -23,7 +23,6 @@ AEnemyBase::AEnemyBase()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
-
 	// --- debug shiit ---
 	DirectionArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("DirectionArrow"));
 	DirectionArrow->SetupAttachment(RootComponent);
@@ -138,10 +137,7 @@ void AEnemyBase::StartMovingToNextTile()
 
 FVector2D AEnemyBase::PickRandomUnblockedDirection() const
 {
-	const TArray<FVector2D> Directions = {
-		FVector2D(1, 0), FVector2D(-1, 0),
-		FVector2D(0, 1), FVector2D(0, -1)
-	};
+	const TArray<FVector2D> Directions = { FVector2D(1, 0), FVector2D(-1, 0), FVector2D(0, 1), FVector2D(0, -1) };
 
 	TArray<FVector2D> Shuffled = Directions;
 	for (int32 i = Shuffled.Num() - 1; i > 0; i--)
@@ -152,8 +148,7 @@ FVector2D AEnemyBase::PickRandomUnblockedDirection() const
 
 	for (const FVector2D& Dir : Shuffled)
 	{
-		if (!IsDirectionBlocked(Dir))
-			return Dir;
+		if (!IsDirectionBlocked(Dir)) return Dir;
 	}
 
 	return FVector2D::ZeroVector;
@@ -193,9 +188,7 @@ void AEnemyBase::OnDeath()
 	Destroy();
 }
 
-void AEnemyBase::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
+void AEnemyBase::OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Enemy overlap with: %s"), *OtherActor->GetName());
 

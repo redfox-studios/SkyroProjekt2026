@@ -11,14 +11,15 @@
 class ABombermanGrid;
 
 UCLASS(Abstract)
+
 class BOMBERMAN3D_API AEnemyBase : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	AEnemyBase();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
@@ -40,7 +41,7 @@ protected:
 	FIntPoint CurrentReservedTile = FIntPoint(-1, -1);
 	void ReleaseReservation();
 
-public:
+  public:
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	UBombermanHealthComponent* HealthComponent;
 
@@ -52,7 +53,7 @@ public:
 
 	ABombermanGrid* Grid = nullptr;
 
-private:
+  private:
 	// Tile-to-tile movement state
 	FVector TargetWorldPos = FVector::ZeroVector;
 	bool bMovingToTile = false;
@@ -63,7 +64,5 @@ private:
 	void OnDeath();
 
 	UFUNCTION()
-	void OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
+	void OnCapsuleOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

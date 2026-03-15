@@ -6,26 +6,34 @@
 #include "GameFramework/Actor.h"
 #include "BombermanUpgrade.generated.h"
 
+// clang-format off
 UENUM(BlueprintType)
 enum class EUpgradeType : uint8
 {
-	BombUp  UMETA(DisplayName = "Bomb Up"),
-	FireUp  UMETA(DisplayName = "Fire Up"),
-	SpeedUp UMETA(DisplayName = "Speed Up")
+	BombUp			UMETA(DisplayName = "Bomb Up"),
+	FireUp			UMETA(DisplayName = "Fire Up"),
+	SpeedUp			UMETA(DisplayName = "Speed Up"),
+	Invincible		UMETA(DisplayName = "Invincible"),
+	WallPass		UMETA(DisplayName = "Wall Pass"),
+	BombPass		UMETA(DisplayName = "Bomb Pass"),
+	FlamePass		UMETA(DisplayName = "Flame Pass"),
+	RemoteControl	UMETA(DisplayName = "Remote Control")
 };
+// clang-format on
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanUpgrade : public AActor
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanUpgrade();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 
-public:
+  public:
 	UPROPERTY(EditDefaultsOnly, Category = "Upgrade")
 	EUpgradeType UpgradeType = EUpgradeType::BombUp;
 
@@ -35,7 +43,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	USoundBase* PickupSound;
 
-private:
+  private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Mesh;
 
@@ -43,7 +51,5 @@ private:
 	class UBoxComponent* OverlapBox;
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

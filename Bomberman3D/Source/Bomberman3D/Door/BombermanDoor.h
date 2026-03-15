@@ -7,11 +7,12 @@
 #include "BombermanDoor.generated.h"
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanDoor : public AActor
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanDoor();
 
 	UPROPERTY(EditDefaultsOnly, Category = "VFX")
@@ -23,10 +24,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	USoundBase* EnterSound;
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 
-private:
+  private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* DoorMesh;
 
@@ -34,7 +35,5 @@ private:
 	class UBoxComponent* OverlapBox;
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-		bool bFromSweep, const FHitResult& SweepResult);
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

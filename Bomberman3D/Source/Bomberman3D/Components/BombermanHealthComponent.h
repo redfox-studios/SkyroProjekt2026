@@ -10,11 +10,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+
 class BOMBERMAN3D_API UBombermanHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	UBombermanHealthComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
@@ -35,9 +36,11 @@ public:
 	void Heal(float Amount);
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
+
 	bool IsDead() const { return bIsDead; }
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
+
 	float GetCurrentHealth() const { return CurrentHealth; }
 
 	void ResetHealth();
@@ -45,7 +48,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvincible = false;
 
-private:
+  private:
 	float CurrentHealth = 1.f;
 	bool bIsDead = false;
 };

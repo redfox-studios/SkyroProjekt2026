@@ -19,7 +19,7 @@ ABombermanUpgrade::ABombermanUpgrade()
 	OverlapBox->SetupAttachment(RootComponent);
 	OverlapBox->SetBoxExtent(FVector(40.f));
 	OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
-	
+
 #if WITH_EDITOR
 	OverlapBox->bHiddenInGame = false;
 #else
@@ -33,9 +33,7 @@ void ABombermanUpgrade::BeginPlay()
 	OverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ABombermanUpgrade::OnOverlapBegin);
 }
 
-void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
+void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABombermanCharacter* Player = Cast<ABombermanCharacter>(OtherActor);
 	if (!Player) return;
@@ -54,6 +52,38 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 	case EUpgradeType::SpeedUp:
 		PS->Upgrades.SpeedUp = FMath::Min(PS->Upgrades.SpeedUp + 1, 3);
 		Player->GetCharacterMovement()->MaxWalkSpeed += Player->GetSpeedUpIncrement();
+		break;
+	case EUpgradeType::Invincible:
+		if (UBombermanHealthComponent* Health = Player->FindComponentByClass<UBombermanHealthComponent>())
+		{
+			Health->bInvincible = true;
+			FTimerHandle InvincibleTimer;
+			Player->GetWorldTimerManager().SetTimer(
+				InvincibleTimer,
+				[Health]()
+				{
+					if (Health) Health->bInvincible = false;
+				},
+				30.f,
+				false
+			);
+		}
+		break;
+	case EUpgradeType::WallPass:
+		PS->Upgrades.bWallPass = true;
+		Player->SetWallPass(true);
+		break;
+
+	case EUpgradeType::BombPass:
+		PS->Upgrades.bBombPass = true;
+		break;
+
+	case EUpgradeType::FlamePass:
+		PS->Upgrades.bFlamePass = true;
+		break;
+
+	case EUpgradeType::RemoteControl:
+		PS->Upgrades.bRemoteControl = true;
 		break;
 	}
 
