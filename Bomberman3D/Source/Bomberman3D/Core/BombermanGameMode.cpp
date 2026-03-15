@@ -352,6 +352,20 @@ void ABombermanGameMode::AddScore(int32 Points)
 
 void ABombermanGameMode::LoadNextStage()
 {
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC && LoadingScreenWidgetClass)
+	{
+		UUserWidget* Widget = CreateWidget<UUserWidget>(PC, LoadingScreenWidgetClass);
+		if (Widget) Widget->AddToViewport(999); // on top of everything
+	}
+
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+	LatentInfo.UUID = 1;
+	LatentInfo.Linkage = 0;
+	LatentInfo.ExecutionFunction = NAME_None;
+
+	UGameplayStatics::LoadStreamLevel(this, FName(*GetWorld()->GetName()), true, true, LatentInfo);
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()));
 }
 

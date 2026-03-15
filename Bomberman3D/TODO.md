@@ -152,6 +152,12 @@
 - Multiplayer refactor cost -> no global player singletons, always use PlayerState/GameState
 
 ## Known Bugs
-- enemy can walk trough my bomb when i have bombpass upgrade
-- walking through other players bombs we need to check all bombs (currently ignoring since we dont have multiplayer)
+- enemy can walk trough my bomb when i have bombpass upgrade (maybe because i placed the bomb on tile where enemy was but idk)
+- grid not expanding (or atleast i didnt feel like its expanding)
+- invincibility upgrade in debug still shown as 0 (maybe i was just blind)
+- game spawns upgrades i already earned
+- the game feels too easy (i get almost all upgrades till stage 3), sometimes i get the most OP ones in the stage 1 (wallpass, firepass)
 - Im sure ill find more later
+
+### Multiplayer Bugs
+- walking through other players bombs we need to check all bombs (currently ignoring since we dont have multiplayer)

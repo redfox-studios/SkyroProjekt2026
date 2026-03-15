@@ -71,6 +71,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Stage Config")
 	float StageClearDelay = 3.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> LoadingScreenWidgetClass;
+
 private:
 	void StartStage();
 	void OnStageTimerTick();
