@@ -1,3 +1,11 @@
+# Discord SDK
+!Plugins/DiscordPartnerSDK/**
+!Plugins/DiscordPartnerSDK/**/*.dll
+!Plugins/DiscordPartnerSDK/**/*.lib
+!Plugins/DiscordPartnerSDK/**/*.so
+!Plugins/DiscordPartnerSDK/**/*.dylib
+!Plugins/DiscordPartnerSDK/**/*.a
+
 # Created by https://www.toptal.com/developers/gitignore/api/unrealengine
 # Edit at https://www.toptal.com/developers/gitignore?templates=unrealengine
 
@@ -94,3 +102,11 @@ Plugins/**/Binaries/*
 Plugins/**/Intermediate/*
 
 # End of https://www.toptal.com/developers/gitignore/api/unrealengine
+
+# Discord SDK
+!Plugins/DiscordPartnerSDK/**
+!Plugins/DiscordPartnerSDK/**/*.dll
+!Plugins/DiscordPartnerSDK/**/*.lib
+!Plugins/DiscordPartnerSDK/**/*.so
+!Plugins/DiscordPartnerSDK/**/*.dylib
+!Plugins/DiscordPartnerSDK/**/*.a
