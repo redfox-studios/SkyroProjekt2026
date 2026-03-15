@@ -96,6 +96,8 @@ void ABombermanGameMode::StartStage()
 		BombermanGameState->CurrentStage = GI->CurrentStage;
 		// GI->CurrentStage++;
 
+		/*
+		// now managed in characters beginplay
 		for (TActorIterator<ABombermanCharacter> It(GetWorld()); It; ++It)
 		{
 			if (ABombermanPlayerState* PS = It->GetPlayerState<ABombermanPlayerState>())
@@ -109,6 +111,7 @@ void ABombermanGameMode::StartStage()
 			}
 			break;
 		}
+		*/
 	}
 
 	if (StageConfigTable)

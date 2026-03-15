@@ -11,6 +11,7 @@
 #include "Bomb/BombermanBomb.h"
 #include "Player/BombermanPlayerState.h"
 #include "Core/BombermanGameMode.h"
+#include "Core/BombermanGameInstance.h"
 
 #include "Bomberman3D.h"
 
@@ -58,14 +59,24 @@ void ABombermanCharacter::BeginPlay()
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
 	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
 
-	if (ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>())
-	{
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed + (PS->Upgrades.SpeedUp * SpeedUpIncrement);
-	}
-	else
-	{
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-	}
+	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+		{
+			if (ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>())
+			{
+				if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
+				{
+					PS->Lives = GI->Lives;
+					PS->Upgrades = GI->Upgrades;
+					PS->SetScore(GI->Score);
+				}
+				GetCharacterMovement()->MaxWalkSpeed = BaseSpeed + (PS->Upgrades.SpeedUp * SpeedUpIncrement);
+				SetWallPass(PS->Upgrades.bWallPass);
+			}
+			else
+			{
+				GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+			}
+		});
 }
 
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
