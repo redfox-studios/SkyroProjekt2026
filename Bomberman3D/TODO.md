@@ -148,3 +148,8 @@
 - Doria AI complexity -> signed off for now, revisit if time allows
 - Procedural gen edge cases -> flood-fill check is in, keep an eye on edge cases
 - Multiplayer refactor cost -> no global player singletons, always use PlayerState/GameState
+
+## Known Bugs
+- BombPass upgrade not working (probably caused by limited bombpass player receives when placing bomb so he wont noclip)
+- WallPass allows player to put bomb in a soft block, however the softblock doesnt get destroyed and becomes indestructible (on grid appears as empty but in world its still a block)
+- 
