@@ -41,24 +41,30 @@ void ABombermanGameMode::Tick(float DeltaTime)
 
 	if (BombermanGameState)
 	{
-		GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Yellow,
-			FString::Printf(TEXT("Stage: %d | State: %d | Timer: %.0f | Enemies: %d"),
+		GEngine->AddOnScreenDebugMessage(
+			0,
+			0.f,
+			FColor::Yellow,
+			FString::Printf(
+				TEXT("Stage: %d | State: %d | Timer: %.0f | Enemies: %d"),
 				BombermanGameState->CurrentStage,
 				(int32)BombermanGameState->StageState,
 				BombermanGameState->StageTimeRemaining,
 				BombermanGameState->EnemiesRemaining
-			));
+			)
+		);
 	}
 
 	if (PS)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Cyan,
-			FString::Printf(TEXT("Lives: %d | Score: %d"),
-				PS->Lives,
-				(int32)PS->GetScore()));
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Cyan, FString::Printf(TEXT("Lives: %d | Score: %d"), PS->Lives, (int32)PS->GetScore()));
 
-		GEngine->AddOnScreenDebugMessage(2, 0.f, FColor::Green,
-			FString::Printf(TEXT("BombUp: %d | FireUp: %d | SpeedUp: %d | Invincible: %d | WallPass: %d | BombPass: %d | FlamePass: %d | RemoteControl: %d"),
+		GEngine->AddOnScreenDebugMessage(
+			2,
+			0.f,
+			FColor::Green,
+			FString::Printf(
+				TEXT("BombUp: %d | FireUp: %d | SpeedUp: %d | Invincible: %d | WallPass: %d | BombPass: %d | FlamePass: %d | RemoteControl: %d"),
 				PS->Upgrades.BombUp,
 				PS->Upgrades.FireUp,
 				PS->Upgrades.SpeedUp,
@@ -67,7 +73,8 @@ void ABombermanGameMode::Tick(float DeltaTime)
 				PS->Upgrades.bBombPass,
 				PS->Upgrades.bFlamePass,
 				PS->Upgrades.bRemoteControl
-			));
+			)
+		);
 	}
 }
 
@@ -151,22 +158,10 @@ void ABombermanGameMode::StartStage()
 	GetWorld()->GetTimerManager().SetTimer(SpawnDelay, this, &ABombermanGameMode::SpawnEnemies, 0.1f, false);
 
 	// Tick timer every second
-	GetWorld()->GetTimerManager().SetTimer(
-		StageTickHandle,
-		this,
-		&ABombermanGameMode::OnStageTimerTick,
-		1.f,
-		true
-	);
+	GetWorld()->GetTimerManager().SetTimer(StageTickHandle, this, &ABombermanGameMode::OnStageTimerTick, 1.f, true);
 
 	// Full stage timer
-	GetWorld()->GetTimerManager().SetTimer(
-		StageTimerHandle,
-		this,
-		&ABombermanGameMode::OnStageTimerExpired,
-		StageTimerDuration,
-		false
-	);
+	GetWorld()->GetTimerManager().SetTimer(StageTimerHandle, this, &ABombermanGameMode::OnStageTimerExpired, StageTimerDuration, false);
 
 	UE_LOG(LogTemp, Log, TEXT("Stage %d started. Enemies: %d"), BombermanGameState->CurrentStage, BombermanGameState->EnemiesRemaining);
 }
@@ -208,10 +203,7 @@ void ABombermanGameMode::SpawnEnemies()
 		{
 			if (TileIndex >= ValidTiles.Num()) break;
 
-			FVector WorldPos = Grid->GetTileWorldPosition(
-				FMath::RoundToInt(ValidTiles[TileIndex].X),
-				FMath::RoundToInt(ValidTiles[TileIndex].Y)
-			);
+			FVector WorldPos = Grid->GetTileWorldPosition(FMath::RoundToInt(ValidTiles[TileIndex].X), FMath::RoundToInt(ValidTiles[TileIndex].Y));
 			WorldPos.Z = HalfHeight;
 			TileIndex++;
 
@@ -244,8 +236,7 @@ void ABombermanGameMode::OnStageTimerExpired()
 		{
 			for (int32 Y = 1; Y < Grid->GetGridWidth() - 1; Y++)
 			{
-				if (Grid->GetTileContent(X, Y) == ETileContent::Empty)
-					ValidTiles.Add(FVector2D(X, Y));
+				if (Grid->GetTileContent(X, Y) == ETileContent::Empty) ValidTiles.Add(FVector2D(X, Y));
 			}
 		}
 

@@ -2,10 +2,7 @@
 
 #include "Components/BombermanHealthComponent.h"
 
-UBombermanHealthComponent::UBombermanHealthComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UBombermanHealthComponent::UBombermanHealthComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 void UBombermanHealthComponent::TakeDamage(float Amount)
 {

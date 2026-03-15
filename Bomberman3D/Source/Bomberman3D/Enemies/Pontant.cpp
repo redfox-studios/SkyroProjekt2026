@@ -5,15 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 
-APontant::APontant()
-{
-	MoveSpeed = 250.f;
-}
+APontant::APontant() { MoveSpeed = 250.f; }
 
-void APontant::OnTileReached()
-{
-	ChasePlayer();
-}
+void APontant::OnTileReached() { ChasePlayer(); }
 
 void APontant::ChasePlayer()
 {

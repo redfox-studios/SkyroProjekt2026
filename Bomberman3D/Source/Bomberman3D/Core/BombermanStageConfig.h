@@ -8,31 +8,33 @@
 #include "BombermanStageConfig.generated.h"
 
 USTRUCT(BlueprintType)
+
 struct FBombermanStageEnemyEntry
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSubclassOf<AEnemyBase> EnemyClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AEnemyBase> EnemyClass;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Count = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Count = 3;
 };
 
 USTRUCT(BlueprintType)
+
 struct FBombermanStageConfig : public FTableRowBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<FBombermanStageEnemyEntry> Enemies;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FBombermanStageEnemyEntry> Enemies;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float StageTimer = 200.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float StageTimer = 200.f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float SoftBlockDensity = 0.65f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SoftBlockDensity = 0.65f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float UpgradeDensity = 0.2f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float UpgradeDensity = 0.2f;
 };

@@ -8,11 +8,12 @@
 #include "BombermanGameInstance.generated.h"
 
 UCLASS()
+
 class BOMBERMAN3D_API UBombermanGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	// static constexpr int32 DefaultStage = 1;
 	// static constexpr int32 DefaultLives = 3;
 

@@ -8,11 +8,12 @@
 #include "BombermanPlayerState.generated.h"
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player State")
 	int32 Lives = 3;
 
@@ -23,9 +24,11 @@ public:
 	// int32 Score = 0;
 
 	void AddScore(int32 Points) { SetScore(GetScore() + Points); }
+
 	int32 GetCurrentScore() const { return FMath::RoundToInt(GetScore()); }
 
 	// Derived from upgrades, don't set these directly
 	int32 GetBombCount() const { return 1 + Upgrades.BombUp; }
+
 	int32 GetBlastRadius() const { return 1 + Upgrades.FireUp; }
 };

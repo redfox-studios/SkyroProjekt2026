@@ -21,17 +21,18 @@
 class ABombermanGrid;
 
 UCLASS()
+
 class BOMBERMAN3D_API ABombermanCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABombermanCharacter();
 
-protected:
+  protected:
 	virtual void BeginPlay() override;
 
-public:
+  public:
 	// virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -97,7 +98,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Debug")
 	UArrowComponent* DirectionArrow;
 
-private:
+  private:
 	void Move(const FInputActionValue& Value);
 	void PlaceBomb(const FInputActionValue& Value);
 	void DetonateBomb(const FInputActionValue& Value);

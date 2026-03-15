@@ -25,13 +25,7 @@ void ABombermanBomb::BeginPlay()
 
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
 
-	GetWorld()->GetTimerManager().SetTimer(
-		FuseTimerHandle,
-		this,
-		&ABombermanBomb::Detonate,
-		FuseTimer,
-		false
-	);
+	GetWorld()->GetTimerManager().SetTimer(FuseTimerHandle, this, &ABombermanBomb::Detonate, FuseTimer, false);
 }
 
 void ABombermanBomb::Tick(float DeltaTime)
@@ -54,8 +48,7 @@ void ABombermanBomb::Tick(float DeltaTime)
 	FVector2D PlayerTile = Grid->GetGridPositionFromWorld(OwnerCharacter->GetActorLocation());
 	FVector2D BombTile = Grid->GetGridPositionFromWorld(GetActorLocation());
 
-	if (FMath::RoundToInt(PlayerTile.X) != FMath::RoundToInt(BombTile.X) ||
-		FMath::RoundToInt(PlayerTile.Y) != FMath::RoundToInt(BombTile.Y))
+	if (FMath::RoundToInt(PlayerTile.X) != FMath::RoundToInt(BombTile.X) || FMath::RoundToInt(PlayerTile.Y) != FMath::RoundToInt(BombTile.Y))
 	{
 		bCollisionEnabled = true;
 		BombMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
@@ -64,8 +57,7 @@ void ABombermanBomb::Tick(float DeltaTime)
 
 void ABombermanBomb::Detonate()
 {
-	if (CurrentState == EBombState::Detonating || CurrentState == EBombState::Explosion || CurrentState == EBombState::Cleanup)
-		return;
+	if (CurrentState == EBombState::Detonating || CurrentState == EBombState::Explosion || CurrentState == EBombState::Cleanup) return;
 
 	if (!Grid) return;
 
@@ -95,10 +87,7 @@ void ABombermanBomb::Explode()
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionVFX, Grid->GetTileWorldPosition(BX, BY));
 	}
 
-	const TArray<FVector2D> Directions = {
-		FVector2D(1, 0), FVector2D(-1, 0),
-		FVector2D(0, 1), FVector2D(0, -1)
-	};
+	const TArray<FVector2D> Directions = { FVector2D(1, 0), FVector2D(-1, 0), FVector2D(0, 1), FVector2D(0, -1) };
 
 	for (const FVector2D& Dir : Directions)
 	{
@@ -170,9 +159,7 @@ void ABombermanBomb::DamageActorsOnTile(int32 X, int32 Y)
 
 	// Overlap check - find all actors within this tile's bounds
 	TArray<AActor*> OverlappingActors;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
-		UEngineTypes::ConvertToObjectType(ECC_Pawn)
-	};
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = { UEngineTypes::ConvertToObjectType(ECC_Pawn) };
 
 	UKismetSystemLibrary::BoxOverlapActors(
 		GetWorld(),

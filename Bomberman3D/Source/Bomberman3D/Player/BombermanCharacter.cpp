@@ -21,7 +21,8 @@ ABombermanCharacter::ABombermanCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	GetCapsuleComponent()->SetCapsuleSize(30.f, 60.f); // UE defaults -> 36 , 80
+	GetCapsuleComponent()->SetCapsuleSize(30.f,
+										  60.f); // UE defaults -> 36 , 80
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
@@ -59,14 +60,14 @@ void ABombermanCharacter::BeginPlay()
 	Grid = Cast<ABombermanGrid>(UGameplayStatics::GetActorOfClass(GetWorld(), ABombermanGrid::StaticClass()));
 	HealthComponent->OnDeath.AddDynamic(this, &ABombermanCharacter::OnDeath);
 
-	GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+	GetWorld()->GetTimerManager().SetTimerForNextTick(
+		[this]()
 		{
 			if (ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>())
 			{
 				if (UBombermanGameInstance* GI = Cast<UBombermanGameInstance>(GetGameInstance()))
 				{
-					UE_LOG(LogTemp, Warning, TEXT("GI state: Lives=%d BombUp=%d FireUp=%d SpeedUp=%d"),
-						GI->Lives, GI->Upgrades.BombUp, GI->Upgrades.FireUp, GI->Upgrades.SpeedUp);
+					UE_LOG(LogTemp, Warning, TEXT("GI state: Lives=%d BombUp=%d FireUp=%d SpeedUp=%d"), GI->Lives, GI->Upgrades.BombUp, GI->Upgrades.FireUp, GI->Upgrades.SpeedUp);
 
 					PS->Lives = GI->Lives;
 					PS->Upgrades = GI->Upgrades;
@@ -79,7 +80,8 @@ void ABombermanCharacter::BeginPlay()
 			{
 				GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
 			}
-		});
+		}
+	);
 }
 
 void ABombermanCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -112,8 +114,7 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 
 	ABombermanPlayerState* PS = GetPlayerState<ABombermanPlayerState>();
 
-	UE_LOG(LogTemp, Warning, TEXT("PlaceBomb called. ActiveBombCount: %d, MaxBombs: %d"),
-		ActiveBombCount, PS ? PS->GetBombCount() : -1);
+	UE_LOG(LogTemp, Warning, TEXT("PlaceBomb called. ActiveBombCount: %d, MaxBombs: %d"), ActiveBombCount, PS ? PS->GetBombCount() : -1);
 
 	FVector2D GridPos = GetCurrentGridPosition();
 	int32 GX = FMath::RoundToInt(GridPos.X);
@@ -137,8 +138,7 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	ABombermanBomb* Bomb = GetWorld()->SpawnActor<ABombermanBomb>(BombClass, WorldPos, FRotator::ZeroRotator);
 	if (!Bomb) return;
 
-	if (PlaceBombSound)
-		UGameplayStatics::PlaySoundAtLocation(this, PlaceBombSound, GetActorLocation());
+	if (PlaceBombSound) UGameplayStatics::PlaySoundAtLocation(this, PlaceBombSound, GetActorLocation());
 
 	Bomb->OwnerCharacter = this;
 	if (PS) Bomb->BlastRadius = PS->GetBlastRadius();
@@ -201,15 +201,14 @@ void ABombermanCharacter::OnDeath()
 	HealthComponent->bInvincible = true;
 
 	GetWorld()->GetTimerManager().SetTimer(InvincibilityTimerHandle, [this]()
-		{
-			HealthComponent->bInvincible = false;
-		}, 2.f, false);
+										   { HealthComponent->bInvincible = false; },
+										   2.f,
+										   false);
 }
 
 FVector2D ABombermanCharacter::GetCurrentGridPosition() const
 {
-	if (Grid)
-		return Grid->GetGridPositionFromWorld(GetActorLocation());
+	if (Grid) return Grid->GetGridPositionFromWorld(GetActorLocation());
 
 	return FVector2D::ZeroVector;
 }

@@ -9,15 +9,15 @@
 
 ABombermanDoor::ABombermanDoor()
 {
-    PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;
 
-    DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
-    RootComponent = DoorMesh;
+	DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
+	RootComponent = DoorMesh;
 
-    OverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapBox"));
-    OverlapBox->SetupAttachment(RootComponent);
-    OverlapBox->SetBoxExtent(FVector(40.f));
-    OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
+	OverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapBox"));
+	OverlapBox->SetupAttachment(RootComponent);
+	OverlapBox->SetBoxExtent(FVector(40.f));
+	OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
 }
 
 void ABombermanDoor::BeginPlay()
@@ -31,9 +31,7 @@ void ABombermanDoor::BeginPlay()
 	}
 }
 
-void ABombermanDoor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
+void ABombermanDoor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Door overlap: %s"), *OtherActor->GetName());
 	if (!Cast<ABombermanCharacter>(OtherActor)) return;

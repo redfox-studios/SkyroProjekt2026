@@ -19,7 +19,7 @@ ABombermanUpgrade::ABombermanUpgrade()
 	OverlapBox->SetupAttachment(RootComponent);
 	OverlapBox->SetBoxExtent(FVector(40.f));
 	OverlapBox->SetCollisionProfileName(TEXT("Trigger"));
-	
+
 #if WITH_EDITOR
 	OverlapBox->bHiddenInGame = false;
 #else
@@ -33,9 +33,7 @@ void ABombermanUpgrade::BeginPlay()
 	OverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ABombermanUpgrade::OnOverlapBegin);
 }
 
-void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
+void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABombermanCharacter* Player = Cast<ABombermanCharacter>(OtherActor);
 	if (!Player) return;
@@ -60,10 +58,15 @@ void ABombermanUpgrade::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 		{
 			Health->bInvincible = true;
 			FTimerHandle InvincibleTimer;
-			Player->GetWorldTimerManager().SetTimer(InvincibleTimer, [Health]()
+			Player->GetWorldTimerManager().SetTimer(
+				InvincibleTimer,
+				[Health]()
 				{
 					if (Health) Health->bInvincible = false;
-				}, 30.f, false);
+				},
+				30.f,
+				false
+			);
 		}
 		break;
 	case EUpgradeType::WallPass:

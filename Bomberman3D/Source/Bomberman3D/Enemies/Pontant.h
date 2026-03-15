@@ -8,16 +8,17 @@
 
 // Pontant: always chases the player, fastest enemy.
 UCLASS()
+
 class BOMBERMAN3D_API APontant : public AEnemyBase
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	APontant();
 
-protected:
+  protected:
 	virtual void OnTileReached() override;
 
-private:
+  private:
 	void ChasePlayer();
 };

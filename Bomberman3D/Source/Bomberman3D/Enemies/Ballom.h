@@ -9,10 +9,11 @@
 // Ballom: purely random movement, changes direction on wall hit.
 // All logic lives in EnemyBase - this class just sets the speed.
 UCLASS()
+
 class BOMBERMAN3D_API ABallom : public AEnemyBase
 {
 	GENERATED_BODY()
 
-public:
+  public:
 	ABallom();
 };
