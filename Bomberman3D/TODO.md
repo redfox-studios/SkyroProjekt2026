@@ -29,6 +29,7 @@
 - [x] Health component (BombermanHealthComponent, reusable on enemies)
 - [x] Death handling (lose life, respawn or game over)
 - [x] Invincibility frames after respawn
+- [x] Upgrade reset on death (boolean upgrades stripped, BombUp/FireUp kept)
 
 ### Bomb
 - [x] ABomb actor class
@@ -76,19 +77,19 @@
 - [x] Procedural soft block placement (skip player spawn zone)
 - [x] Door hidden under random soft block
 - [x] Flood-fill check (guarantee door is always reachable)
-- [x] Upgrades hidden under random soft blocks (BombUp, FireUp, SpeedUp)
+- [x] Upgrades hidden under random soft blocks (all upgrade types)
 - [x] Data Table setup (multiple enemy types + counts, timer, soft block density, upgrade density per stage)
 - [x] Grid growth (every X stages, grid grows by 1 in each direction)
 
 ### Upgrades & Items
-- [x] BombUp (max bombs +1)
-- [x] FireUp (blast radius +1)
-- [x] SpeedUp (movement speed +1)
-- [ ] RemoteControl
-- [ ] WallPass
-- [ ] BombPass
-- [ ] FlamePass
-- [ ] Invincible
+- [x] BombUp (max bombs +1, persists between stages)
+- [x] FireUp (blast radius +1, persists between stages)
+- [x] SpeedUp (movement speed +1, resets on stage clear/death)
+- [x] RemoteControl (detonate with B button, resets on stage clear/death)
+- [x] WallPass (pass through soft blocks, resets on stage clear/death)
+- [x] BombPass (place bombs on bomb tiles, resets on stage clear/death)
+- [x] FlamePass (immune to own explosions, resets on stage clear/death)
+- [x] Invincible (30s immunity to blasts and enemies, resets on stage clear/death)
 
 ### Save System
 - [x] GameInstance persists stage, lives, upgrades across level loads
@@ -99,6 +100,7 @@
 ### Stage Progression
 - [x] Load next stage on clear (reloads current level for now)
 - [x] Enemy Rush (Pontants on timer expire, count configurable)
+- [x] Upgrade reset on stage clear (boolean upgrades stripped, BombUp/FireUp kept)
 - [ ] 50 total stages
 
 ---
