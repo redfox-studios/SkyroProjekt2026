@@ -150,6 +150,7 @@
 - Multiplayer refactor cost -> no global player singletons, always use PlayerState/GameState
 
 ## Known Bugs
-- BombPass upgrade not working (probably caused by limited bombpass player receives when placing bomb so he wont noclip)
-- WallPass allows player to put bomb in a soft block, however the softblock doesnt get destroyed and becomes indestructible (on grid appears as empty but in world its still a block)
-- 
+- BombPass upgrade still not working. can only pass trough bomb when i place it but not afterwards
+- WallPass allows player to put bomb in a soft block, however the softblock gets destroyed even when player doesnt have enough bombs (one bomb is active, player has no bomb upgrades, yet he can still destroy tiles with wallpass upgrade)
+- Upgrades not transferring to next stage except bombup and fireup (again for the 3rd time)
+- Im sure ill find more later

@@ -117,8 +117,16 @@ void ABombermanCharacter::PlaceBomb(const FInputActionValue& Value)
 	int32 GY = FMath::RoundToInt(GridPos.Y);
 
 	ETileContent CurrentTile = Grid->GetTileContent(GX, GY);
-	if (CurrentTile == ETileContent::Bomb) return;
-	if (CurrentTile != ETileContent::Empty && (!PS || !PS->Upgrades.bBombPass)) return;
+	// if (CurrentTile == ETileContent::Bomb) return;
+	// if (CurrentTile != ETileContent::Empty && (!PS || !PS->Upgrades.bBombPass)) return;
+	if (CurrentTile == ETileContent::Bomb && (!PS || !PS->Upgrades.bBombPass)) return;
+	if (CurrentTile != ETileContent::Empty && CurrentTile != ETileContent::Bomb && CurrentTile != ETileContent::SoftBlock) return;
+	if (CurrentTile == ETileContent::SoftBlock && (!PS || !PS->Upgrades.bWallPass)) return;
+
+	if (CurrentTile == ETileContent::SoftBlock)
+	{
+		Grid->DestroyActorOnTile(GX, GY);
+	}
 
 	if (PS && ActiveBombCount >= PS->GetBombCount()) return;
 
