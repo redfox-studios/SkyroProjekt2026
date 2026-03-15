@@ -137,10 +137,12 @@
 - [ ] Loading Screen
 - [x] Credits Screen
 - [ ] Settings (keybind remapping via Enhanced Input)
+- [x] Random game tips in main menu and pause menu
 
 ### Final
 - [ ] Full bugfix pass
 - [ ] Local co-op/versus (if time allows)
+  - [ ] Full Multiplayer bugfix pass
 
 ---
 
@@ -150,9 +152,6 @@
 - Multiplayer refactor cost -> no global player singletons, always use PlayerState/GameState
 
 ## Known Bugs
-- BombPass upgrade still not working. can only pass trough bomb when i place it but not afterwards
 - enemy can walk trough my bomb when i have bombpass upgrade
-- WallPass allows player to put bomb in a soft block, however the softblock gets destroyed even when player doesnt have enough bombs (one bomb is active, player has no bomb upgrades, yet he can still destroy tiles with wallpass upgrade)
-- Upgrades not transferring to next stage except bombup and fireup (again for the 3rd time)
 - walking through other players bombs we need to check all bombs (currently ignoring since we dont have multiplayer)
 - Im sure ill find more later
